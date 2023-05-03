@@ -1,0 +1,197 @@
+---
+title: "Trabajo Práctico 1"
+author: "Alejandro Uribe"
+lang: es
+description: |
+  Pruebas paramétricas y no paramétricas
+format:
+  html:
+    theme:  flatly
+    code-fold: false
+    code-line-numbers: true
+    code-tools: true
+    toc: true
+    toc-location: left
+---
+
+# Data
+
+The data is related to direct marketing campaigns of a financial institution.The marketing campaigns were based on phone calls. Often, more than one contact to the same client was required, in order to assess if the product (bank term deposit) would be `yes` or not `no` subscribed. You will have to analyze the dataset in order to find ways to look for future strategies in order to improve future marketing campaigns for the bank.
+
+## Attribute Information
+
+### Input Variables
+
+|  #  | Variable    | Type        | Description             | Examples
+| --- | ----------- | ----------- | ----------------------- | -----------
+|  1  | age         | numeric     |                         |             
+|  2  | job         | categorical | type of job             | `admin`, `blue-collar`, `entrepreneur`, `housemaid`, `management`, `retired`, `self-employed`, `services`, `student`, `technician`, `unemployed`, `unknown`
+|  3  | marital     | categorical | marital status          | `divorced`\*, `married`, `single`, `unknown`
+|  4  | education   | categorical |                         | `basic.4y`, `basic.6y`, `basic.9y`, `high.school`, `illiterate`, `professional.course`, `university.degree`, `unknown`
+|  5  | default     | categorical | has credit in default?  | `no`, `yes`, `unknown`
+|  6  | balance     |             |                         |               
+|  7  | housing     | categorical | has housing loan?       | `no`, `yes`, `unknown`
+|  8  | loan        | categorical | has personal loan?      | `no`, `yes`, `unknown`
+
+> \* **Note**  
+`divorced` means `divorced` or `widowed`
+
+*Related with the last contact of the current campaign*
+
+|  #  | Variable    | Type        | Description                           | Examples
+| --- | ----------- | ----------- | ------------------------------------- | -----------
+| 9   | contact     | categorical | contact communication type            | `cellular`, `telephone`
+| 10  | month       | categorical | last contact month of year            | `jan`, `feb`, `mar`, ... , `nov`, `dec`
+| 11  | day         | categorical | last contact day of the week          | `mon`, `tue`, `wed`, `thu`, `fri`
+| 12  | duration    | numeric     | last contact duration, in seconds\*   |
+
+> \* **Note**  
+This attribute highly affects the output `target` (e.g., if `duration=0` then `y=no`).  
+Yet, the duration is not known before a call is performed. Also, after the end of the call y is obviously known.  
+Thus, this input should only be included for benchmark purposes and should be discarded if the intention is to have a realistic predictive model.
+
+*Other attributes*
+
+|  #  | Variable    | Type        | Description                                                                                   | Examples
+| --- | ----------- | ----------- | --------------------------------------------------------------------------------------------- | -----------
+| 13  | campaign    | numeric     | number of contacts performed during this campaign and for this client                         | Includes last contact
+| 14  | pdays       | numeric     | number of days that passed by after the client was last contacted from a previous campaign    | `999` means client was not previously contacted
+| 15  | previous    | numeric     | number of contacts performed before this campaign and for this client                         |
+| 16  | poutcome    | categorical | outcome of the previous marketing campaign                                                    | `failure`, `nonexistent`, `success`
+
+### Output variable
+
+|  #  | Variable    | Type        | Description                               | Examples
+| --- | ----------- | ----------- | ----------------------------------------- | -----------
+| 17  | deposit     | binary      | has the client subscribed a term deposit? | `yes`, `no`
+
+# Librerías
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(message = FALSE)
+knitr::opts_chunk$set(warning = FALSE)
+library(splitstackshape)
+library(patchwork)
+library(ggplot2)
+```
+
+Para la base de datos seleccionada genere una muestra aleatoria estratificada y balanceada por "depósito" de tamaño `n = 2000` utilizando como semilla los últimos tres dígitos del DNI/PASAPORTE. Guarde los datos en un archivo y realice todo el trabajo práctico con la muestra generada.
+
+```{r}
+n <- 2000
+set.seed(108)
+```
+
+```{r}
+df <- read.csv('data/training_data.csv')
+df <- stratified(df, c("deposit"),n)
+```
+
+
+Realice un análisis estadístico de cada una de las variables numéricas para cada valor de
+depósito. Presente la información en forma tabular y conteniendo las siguientes
+medidas descriptivas:
+
+* Cantidad de datos
+* Mínimo, máximo
+* Media, mediana, moda
+* Varianza, desviación estándar
+* Coeficiente de variación
+* Cuartil 1, cuartil 3
+* Rango intercuartílico
+* MAD
+* Asimetría
+* Curtosis
+
+```{r}
+summary(df)
+```
+```{r}
+numeric_cols = c("age", "balance", "duration", "campaign", "pdays", "previous", "poutcome")
+```
+
+```{r}
+# charts <- c()
+p <- ggplot(df)
+
+for (col in numeric_cols) {
+  p <- p + ggplot(df, aes(x=deposit, y=col)) + geom_boxplot(outlier.colour="red", outlier.shape=8, outlier.size=4)
+}
+```
+
+```{r}
+p
+```
+
+```{r}
+p3 <- ggplot(df, aes(x=deposit, y=duration)) + geom_boxplot(outlier.colour="red", outlier.shape=8, outlier.size=4)
+```
+
+```{r}
+p1 + p2 + p3
+```
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+

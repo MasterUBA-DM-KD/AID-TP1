@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="es" xml:lang="es"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.2.475">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Alejandro Uribe">
+<meta name="description" content="Pruebas paramétricas y no paramétricas">
+
+<title>Trabajo Práctico 1</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1.6em;
+  vertical-align: middle;
+}
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+
+<script src="Uribe_Alejandro_TP1_AID_files/libs/clipboard/clipboard.min.js"></script>
+<script src="Uribe_Alejandro_TP1_AID_files/libs/quarto-html/quarto.js"></script>
+<script src="Uribe_Alejandro_TP1_AID_files/libs/quarto-html/popper.min.js"></script>
+<script src="Uribe_Alejandro_TP1_AID_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="Uribe_Alejandro_TP1_AID_files/libs/quarto-html/anchor.min.js"></script>
+<link href="Uribe_Alejandro_TP1_AID_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="Uribe_Alejandro_TP1_AID_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="Uribe_Alejandro_TP1_AID_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="Uribe_Alejandro_TP1_AID_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="Uribe_Alejandro_TP1_AID_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+
+
+</head>
+
+<body>
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article toc-left">
+<div id="quarto-sidebar-toc-left" class="sidebar toc-left">
+  <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Tabla de contenidos</h2>
+   
+  <ul>
+  <li><a href="#data" id="toc-data" class="nav-link active" data-scroll-target="#data">Data</a>
+  <ul class="collapse">
+  <li><a href="#attribute-information" id="toc-attribute-information" class="nav-link" data-scroll-target="#attribute-information">Attribute Information</a>
+  <ul class="collapse">
+  <li><a href="#input-variables" id="toc-input-variables" class="nav-link" data-scroll-target="#input-variables">Input Variables</a></li>
+  <li><a href="#output-variable" id="toc-output-variable" class="nav-link" data-scroll-target="#output-variable">Output variable</a></li>
+  </ul></li>
+  </ul></li>
+  <li><a href="#librerías" id="toc-librerías" class="nav-link" data-scroll-target="#librerías">Librerías</a></li>
+  </ul>
+</nav>
+</div>
+<div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+</div>
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<div class="quarto-title-block"><div><h1 class="title">Trabajo Práctico 1</h1><button type="button" class="btn code-tools-button" id="quarto-code-tools-source"><i class="bi"></i> Código</button></div></div>
+</div>
+
+<div>
+  <div class="description">
+    <p>Pruebas paramétricas y no paramétricas</p>
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Autor/a</div>
+    <div class="quarto-title-meta-contents">
+             <p>Alejandro Uribe </p>
+          </div>
+  </div>
+    
+  
+    
+  </div>
+  
+
+</header>
+
+<section id="data" class="level1">
+<h1>Data</h1>
+<p>The data is related to direct marketing campaigns of a financial institution.The marketing campaigns were based on phone calls. Often, more than one contact to the same client was required, in order to assess if the product (bank term deposit) would be <code>yes</code> or not <code>no</code> subscribed. You will have to analyze the dataset in order to find ways to look for future strategies in order to improve future marketing campaigns for the bank.</p>
+<section id="attribute-information" class="level2">
+<h2 class="anchored" data-anchor-id="attribute-information">Attribute Information</h2>
+<section id="input-variables" class="level3">
+<h3 class="anchored" data-anchor-id="input-variables">Input Variables</h3>
+<table class="table">
+<colgroup>
+<col style="width: 5%">
+<col style="width: 18%">
+<col style="width: 18%">
+<col style="width: 38%">
+<col style="width: 18%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>#</th>
+<th>Variable</th>
+<th>Type</th>
+<th>Description</th>
+<th>Examples</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>age</td>
+<td>numeric</td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td>job</td>
+<td>categorical</td>
+<td>type of job</td>
+<td><code>admin</code>, <code>blue-collar</code>, <code>entrepreneur</code>, <code>housemaid</code>, <code>management</code>, <code>retired</code>, <code>self-employed</code>, <code>services</code>, <code>student</code>, <code>technician</code>, <code>unemployed</code>, <code>unknown</code></td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td>marital</td>
+<td>categorical</td>
+<td>marital status</td>
+<td><code>divorced</code>*, <code>married</code>, <code>single</code>, <code>unknown</code></td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td>education</td>
+<td>categorical</td>
+<td></td>
+<td><code>basic.4y</code>, <code>basic.6y</code>, <code>basic.9y</code>, <code>high.school</code>, <code>illiterate</code>, <code>professional.course</code>, <code>university.degree</code>, <code>unknown</code></td>
+</tr>
+<tr class="odd">
+<td>5</td>
+<td>default</td>
+<td>categorical</td>
+<td>has credit in default?</td>
+<td><code>no</code>, <code>yes</code>, <code>unknown</code></td>
+</tr>
+<tr class="even">
+<td>6</td>
+<td>balance</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td>7</td>
+<td>housing</td>
+<td>categorical</td>
+<td>has housing loan?</td>
+<td><code>no</code>, <code>yes</code>, <code>unknown</code></td>
+</tr>
+<tr class="even">
+<td>8</td>
+<td>loan</td>
+<td>categorical</td>
+<td>has personal loan?</td>
+<td><code>no</code>, <code>yes</code>, <code>unknown</code></td>
+</tr>
+</tbody>
+</table>
+<blockquote class="blockquote">
+<p>* <strong>Note</strong><br>
+<code>divorced</code> means <code>divorced</code> or <code>widowed</code></p>
+</blockquote>
+<p><em>Related with the last contact of the current campaign</em></p>
+<table class="table">
+<colgroup>
+<col style="width: 4%">
+<col style="width: 15%">
+<col style="width: 15%">
+<col style="width: 50%">
+<col style="width: 15%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>#</th>
+<th>Variable</th>
+<th>Type</th>
+<th>Description</th>
+<th>Examples</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>9</td>
+<td>contact</td>
+<td>categorical</td>
+<td>contact communication type</td>
+<td><code>cellular</code>, <code>telephone</code></td>
+</tr>
+<tr class="even">
+<td>10</td>
+<td>month</td>
+<td>categorical</td>
+<td>last contact month of year</td>
+<td><code>jan</code>, <code>feb</code>, <code>mar</code>, … , <code>nov</code>, <code>dec</code></td>
+</tr>
+<tr class="odd">
+<td>11</td>
+<td>day</td>
+<td>categorical</td>
+<td>last contact day of the week</td>
+<td><code>mon</code>, <code>tue</code>, <code>wed</code>, <code>thu</code>, <code>fri</code></td>
+</tr>
+<tr class="even">
+<td>12</td>
+<td>duration</td>
+<td>numeric</td>
+<td>last contact duration, in seconds*</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<blockquote class="blockquote">
+<p>* <strong>Note</strong><br>
+This attribute highly affects the output <code>target</code> (e.g., if <code>duration=0</code> then <code>y=no</code>).<br>
+Yet, the duration is not known before a call is performed. Also, after the end of the call y is obviously known.<br>
+Thus, this input should only be included for benchmark purposes and should be discarded if the intention is to have a realistic predictive model.</p>
+</blockquote>
+<p><em>Other attributes</em></p>
+<table class="table">
+<colgroup>
+<col style="width: 2%">
+<col style="width: 8%">
+<col style="width: 8%">
+<col style="width: 72%">
+<col style="width: 8%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>#</th>
+<th>Variable</th>
+<th>Type</th>
+<th>Description</th>
+<th>Examples</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>13</td>
+<td>campaign</td>
+<td>numeric</td>
+<td>number of contacts performed during this campaign and for this client</td>
+<td>Includes last contact</td>
+</tr>
+<tr class="even">
+<td>14</td>
+<td>pdays</td>
+<td>numeric</td>
+<td>number of days that passed by after the client was last contacted from a previous campaign</td>
+<td><code>999</code> means client was not previously contacted</td>
+</tr>
+<tr class="odd">
+<td>15</td>
+<td>previous</td>
+<td>numeric</td>
+<td>number of contacts performed before this campaign and for this client</td>
+<td></td>
+</tr>
+<tr class="even">
+<td>16</td>
+<td>poutcome</td>
+<td>categorical</td>
+<td>outcome of the previous marketing campaign</td>
+<td><code>failure</code>, <code>nonexistent</code>, <code>success</code></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="output-variable" class="level3">
+<h3 class="anchored" data-anchor-id="output-variable">Output variable</h3>
+<table class="table">
+<colgroup>
+<col style="width: 3%">
+<col style="width: 14%">
+<col style="width: 14%">
+<col style="width: 53%">
+<col style="width: 14%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>#</th>
+<th>Variable</th>
+<th>Type</th>
+<th>Description</th>
+<th>Examples</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>17</td>
+<td>deposit</td>
+<td>binary</td>
+<td>has the client subscribed a term deposit?</td>
+<td><code>yes</code>, <code>no</code></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+</section>
+<section id="librerías" class="level1">
+<h1>Librerías</h1>
+<p>Para la base de datos seleccionada genere una muestra aleatoria estratificada y balanceada por “depósito” de tamaño <code>n = 2000</code> utilizando como semilla los últimos tres dígitos del DNI/PASAPORTE. Guarde los datos en un archivo y realice todo el trabajo práctico con la muestra generada.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a>n <span class="ot">&lt;-</span> <span class="dv">2000</span></span>
+<span id="cb1-2"><a href="#cb1-2"></a><span class="fu">set.seed</span>(<span class="dv">108</span>)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a>df <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">'data/training_data.csv'</span>)</span>
+<span id="cb2-2"><a href="#cb2-2"></a>df <span class="ot">&lt;-</span> <span class="fu">stratified</span>(df, <span class="fu">c</span>(<span class="st">"deposit"</span>),n)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Realice un análisis estadístico de cada una de las variables numéricas para cada valor de depósito. Presente la información en forma tabular y conteniendo las siguientes medidas descriptivas:</p>
+<ul>
+<li>Cantidad de datos</li>
+<li>Mínimo, máximo</li>
+<li>Media, mediana, moda</li>
+<li>Varianza, desviación estándar</li>
+<li>Coeficiente de variación</li>
+<li>Cuartil 1, cuartil 3</li>
+<li>Rango intercuartílico</li>
+<li>MAD</li>
+<li>Asimetría</li>
+<li>Curtosis</li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a><span class="fu">summary</span>(df)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>      age            job              marital           education        
+ Min.   :18.00   Length:4000        Length:4000        Length:4000       
+ 1st Qu.:32.00   Class :character   Class :character   Class :character  
+ Median :39.00   Mode  :character   Mode  :character   Mode  :character  
+ Mean   :41.33                                                           
+ 3rd Qu.:49.00                                                           
+ Max.   :95.00                                                           
+   default             balance          housing              loan          
+ Length:4000        Min.   :-1965.0   Length:4000        Length:4000       
+ Class :character   1st Qu.:  121.8   Class :character   Class :character  
+ Mode  :character   Median :  551.5   Mode  :character   Mode  :character  
+                    Mean   : 1560.0                                        
+                    3rd Qu.: 1743.0                                        
+                    Max.   :52587.0                                        
+   contact               day           month              duration     
+ Length:4000        Min.   : 1.00   Length:4000        Min.   :   2.0  
+ Class :character   1st Qu.: 8.00   Class :character   1st Qu.: 141.8  
+ Mode  :character   Median :15.00   Mode  :character   Median : 261.0  
+                    Mean   :15.51                      Mean   : 380.7  
+                    3rd Qu.:21.00                      3rd Qu.: 513.2  
+                    Max.   :31.00                      Max.   :3253.0  
+    campaign          pdays           previous         poutcome        
+ Min.   : 1.000   Min.   : -1.00   Min.   : 0.0000   Length:4000       
+ 1st Qu.: 1.000   1st Qu.: -1.00   1st Qu.: 0.0000   Class :character  
+ Median : 2.000   Median : -1.00   Median : 0.0000   Mode  :character  
+ Mean   : 2.486   Mean   : 51.74   Mean   : 0.8542                     
+ 3rd Qu.: 3.000   3rd Qu.: 57.25   3rd Qu.: 1.0000                     
+ Max.   :43.000   Max.   :854.00   Max.   :41.0000                     
+   deposit         
+ Length:4000       
+ Class :character  
+ Mode  :character  
+                   
+                   
+                   </code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a>numeric_cols <span class="ot">=</span> <span class="fu">c</span>(<span class="st">"age"</span>, <span class="st">"balance"</span>, <span class="st">"duration"</span>, <span class="st">"campaign"</span>, <span class="st">"pdays"</span>, <span class="st">"previous"</span>, <span class="st">"poutcome"</span>)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a>p1 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(df, <span class="fu">aes</span>(<span class="at">x=</span>deposit, <span class="at">y=</span>age)) <span class="sc">+</span> <span class="fu">geom_boxplot</span>(<span class="at">outlier.colour=</span><span class="st">"red"</span>, <span class="at">outlier.shape=</span><span class="dv">8</span>, <span class="at">outlier.size=</span><span class="dv">4</span>)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a>p2 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(df, <span class="fu">aes</span>(<span class="at">x=</span>deposit, <span class="at">y=</span>balance)) <span class="sc">+</span> <span class="fu">geom_boxplot</span>(<span class="at">outlier.colour=</span><span class="st">"red"</span>, <span class="at">outlier.shape=</span><span class="dv">8</span>, <span class="at">outlier.size=</span><span class="dv">4</span>)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a>p3 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(df, <span class="fu">aes</span>(<span class="at">x=</span>deposit, <span class="at">y=</span>duration)) <span class="sc">+</span> <span class="fu">geom_boxplot</span>(<span class="at">outlier.colour=</span><span class="st">"red"</span>, <span class="at">outlier.shape=</span><span class="dv">8</span>, <span class="at">outlier.size=</span><span class="dv">4</span>)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a>p1 <span class="sc">+</span> p2 <span class="sc">+</span> p3</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="Uribe_Alejandro_TP1_AID_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<div class="cell">
+
+</div>
+<div class="cell">
+
+</div>
+<div class="cell">
+
+</div>
+<div class="cell">
+
+</div>
+<div class="cell">
+
+</div>
+<div class="cell">
+
+</div>
+<div class="cell">
+
+</div>
+<div class="cell">
+
+</div>
+<div class="cell">
+
+</div>
+<div class="cell">
+
+</div>
+<div class="cell">
+
+</div>
+<div class="cell">
+
+</div>
+<div class="cell">
+
+</div>
+<div class="cell">
+
+</div>
+<div class="cell">
+
+</div>
+<div class="cell">
+
+</div>
+<!-- -->
+
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copiado");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copiado");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  const viewSource = window.document.getElementById('quarto-view-source') ||
+                     window.document.getElementById('quarto-code-tools-source');
+  if (viewSource) {
+    const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+    viewSource.addEventListener("click", function(e) {
+      if (sourceUrl) {
+        // rstudio viewer pane
+        if (/\bcapabilities=\b/.test(window.location)) {
+          window.open(sourceUrl);
+        } else {
+          window.location.href = sourceUrl;
+        }
+      } else {
+        const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+        modal.show();
+      }
+      return false;
+    });
+  }
+  function toggleCodeHandler(show) {
+    return function(e) {
+      const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+      for (let i=0; i<detailsSrc.length; i++) {
+        const details = detailsSrc[i].parentElement;
+        if (show) {
+          details.open = true;
+        } else {
+          details.removeAttribute("open");
+        }
+      }
+      const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+      const fromCls = show ? "hidden" : "unhidden";
+      const toCls = show ? "unhidden" : "hidden";
+      for (let i=0; i<cellCodeDivs.length; i++) {
+        const codeDiv = cellCodeDivs[i];
+        if (codeDiv.classList.contains(fromCls)) {
+          codeDiv.classList.remove(fromCls);
+          codeDiv.classList.add(toCls);
+        } 
+      }
+      return false;
+    }
+  }
+  const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+  if (hideAllCode) {
+    hideAllCode.addEventListener("click", toggleCodeHandler(false));
+  }
+  const showAllCode = window.document.getElementById("quarto-show-all-code");
+  if (showAllCode) {
+    showAllCode.addEventListener("click", toggleCodeHandler(true));
+  }
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Ejecutar el código</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
+<div class="sourceCode" id="cb10" data-shortcodes="false"><pre class="sourceCode numberSource markdown number-lines code-with-copy"><code class="sourceCode markdown"><span id="cb10-1"><a href="#cb10-1"></a><span class="co">---</span></span>
+<span id="cb10-2"><a href="#cb10-2"></a><span class="an">title:</span><span class="co"> "Trabajo Práctico 1"</span></span>
+<span id="cb10-3"><a href="#cb10-3"></a><span class="an">author:</span><span class="co"> "Alejandro Uribe"</span></span>
+<span id="cb10-4"><a href="#cb10-4"></a><span class="an">lang:</span><span class="co"> es</span></span>
+<span id="cb10-5"><a href="#cb10-5"></a><span class="an">description:</span><span class="co"> |</span></span>
+<span id="cb10-6"><a href="#cb10-6"></a><span class="co">  Pruebas paramétricas y no paramétricas</span></span>
+<span id="cb10-7"><a href="#cb10-7"></a><span class="an">format:</span></span>
+<span id="cb10-8"><a href="#cb10-8"></a><span class="co">  html:</span></span>
+<span id="cb10-9"><a href="#cb10-9"></a><span class="co">    theme:  flatly</span></span>
+<span id="cb10-10"><a href="#cb10-10"></a><span class="co">    code-fold: false</span></span>
+<span id="cb10-11"><a href="#cb10-11"></a><span class="co">    code-line-numbers: true</span></span>
+<span id="cb10-12"><a href="#cb10-12"></a><span class="co">    code-tools: true</span></span>
+<span id="cb10-13"><a href="#cb10-13"></a><span class="co">    toc: true</span></span>
+<span id="cb10-14"><a href="#cb10-14"></a><span class="co">    toc-location: left</span></span>
+<span id="cb10-15"><a href="#cb10-15"></a><span class="co">---</span></span>
+<span id="cb10-16"><a href="#cb10-16"></a></span>
+<span id="cb10-17"><a href="#cb10-17"></a><span class="fu"># Data</span></span>
+<span id="cb10-18"><a href="#cb10-18"></a></span>
+<span id="cb10-19"><a href="#cb10-19"></a>The data is related to direct marketing campaigns of a financial institution.The marketing campaigns were based on phone calls. Often, more than one contact to the same client was required, in order to assess if the product (bank term deposit) would be <span class="in">`yes`</span> or not <span class="in">`no`</span> subscribed. You will have to analyze the dataset in order to find ways to look for future strategies in order to improve future marketing campaigns for the bank.</span>
+<span id="cb10-20"><a href="#cb10-20"></a></span>
+<span id="cb10-21"><a href="#cb10-21"></a><span class="fu">## Attribute Information</span></span>
+<span id="cb10-22"><a href="#cb10-22"></a></span>
+<span id="cb10-23"><a href="#cb10-23"></a><span class="fu">### Input Variables</span></span>
+<span id="cb10-24"><a href="#cb10-24"></a></span>
+<span id="cb10-25"><a href="#cb10-25"></a>|  #  | Variable    | Type        | Description             | Examples</span>
+<span id="cb10-26"><a href="#cb10-26"></a>| --- | ----------- | ----------- | ----------------------- | -----------</span>
+<span id="cb10-27"><a href="#cb10-27"></a>|  1  | age         | numeric     |                         |             </span>
+<span id="cb10-28"><a href="#cb10-28"></a>|  2  | job         | categorical | type of job             | <span class="in">`admin`</span>, <span class="in">`blue-collar`</span>, <span class="in">`entrepreneur`</span>, <span class="in">`housemaid`</span>, <span class="in">`management`</span>, <span class="in">`retired`</span>, <span class="in">`self-employed`</span>, <span class="in">`services`</span>, <span class="in">`student`</span>, <span class="in">`technician`</span>, <span class="in">`unemployed`</span>, <span class="in">`unknown`</span></span>
+<span id="cb10-29"><a href="#cb10-29"></a>|  3  | marital     | categorical | marital status          | <span class="in">`divorced`</span><span class="sc">\*</span>, <span class="in">`married`</span>, <span class="in">`single`</span>, <span class="in">`unknown`</span></span>
+<span id="cb10-30"><a href="#cb10-30"></a>|  4  | education   | categorical |                         | <span class="in">`basic.4y`</span>, <span class="in">`basic.6y`</span>, <span class="in">`basic.9y`</span>, <span class="in">`high.school`</span>, <span class="in">`illiterate`</span>, <span class="in">`professional.course`</span>, <span class="in">`university.degree`</span>, <span class="in">`unknown`</span></span>
+<span id="cb10-31"><a href="#cb10-31"></a>|  5  | default     | categorical | has credit in default?  | <span class="in">`no`</span>, <span class="in">`yes`</span>, <span class="in">`unknown`</span></span>
+<span id="cb10-32"><a href="#cb10-32"></a>|  6  | balance     |             |                         |               </span>
+<span id="cb10-33"><a href="#cb10-33"></a>|  7  | housing     | categorical | has housing loan?       | <span class="in">`no`</span>, <span class="in">`yes`</span>, <span class="in">`unknown`</span></span>
+<span id="cb10-34"><a href="#cb10-34"></a>|  8  | loan        | categorical | has personal loan?      | <span class="in">`no`</span>, <span class="in">`yes`</span>, <span class="in">`unknown`</span></span>
+<span id="cb10-35"><a href="#cb10-35"></a></span>
+<span id="cb10-36"><a href="#cb10-36"></a><span class="at">&gt; </span><span class="sc">\*</span><span class="at"> **Note**</span>  </span>
+<span id="cb10-37"><a href="#cb10-37"></a><span class="in">`divorced`</span><span class="at"> means </span><span class="in">`divorced`</span><span class="at"> or </span><span class="in">`widowed`</span></span>
+<span id="cb10-38"><a href="#cb10-38"></a></span>
+<span id="cb10-39"><a href="#cb10-39"></a>*Related with the last contact of the current campaign*</span>
+<span id="cb10-40"><a href="#cb10-40"></a></span>
+<span id="cb10-41"><a href="#cb10-41"></a>|  #  | Variable    | Type        | Description                           | Examples</span>
+<span id="cb10-42"><a href="#cb10-42"></a>| --- | ----------- | ----------- | ------------------------------------- | -----------</span>
+<span id="cb10-43"><a href="#cb10-43"></a>| 9   | contact     | categorical | contact communication type            | <span class="in">`cellular`</span>, <span class="in">`telephone`</span></span>
+<span id="cb10-44"><a href="#cb10-44"></a>| 10  | month       | categorical | last contact month of year            | <span class="in">`jan`</span>, <span class="in">`feb`</span>, <span class="in">`mar`</span>, ... , <span class="in">`nov`</span>, <span class="in">`dec`</span></span>
+<span id="cb10-45"><a href="#cb10-45"></a>| 11  | day         | categorical | last contact day of the week          | <span class="in">`mon`</span>, <span class="in">`tue`</span>, <span class="in">`wed`</span>, <span class="in">`thu`</span>, <span class="in">`fri`</span></span>
+<span id="cb10-46"><a href="#cb10-46"></a>| 12  | duration    | numeric     | last contact duration, in seconds<span class="sc">\*</span>   |</span>
+<span id="cb10-47"><a href="#cb10-47"></a></span>
+<span id="cb10-48"><a href="#cb10-48"></a><span class="at">&gt; </span><span class="sc">\*</span><span class="at"> **Note**</span>  </span>
+<span id="cb10-49"><a href="#cb10-49"></a><span class="at">This attribute highly affects the output </span><span class="in">`target`</span><span class="at"> (e.g., if </span><span class="in">`duration=0`</span><span class="at"> then </span><span class="in">`y=no`</span><span class="at">).</span>  </span>
+<span id="cb10-50"><a href="#cb10-50"></a><span class="at">Yet, the duration is not known before a call is performed. Also, after the end of the call y is obviously known.</span>  </span>
+<span id="cb10-51"><a href="#cb10-51"></a><span class="at">Thus, this input should only be included for benchmark purposes and should be discarded if the intention is to have a realistic predictive model.</span></span>
+<span id="cb10-52"><a href="#cb10-52"></a></span>
+<span id="cb10-53"><a href="#cb10-53"></a>*Other attributes*</span>
+<span id="cb10-54"><a href="#cb10-54"></a></span>
+<span id="cb10-55"><a href="#cb10-55"></a>|  #  | Variable    | Type        | Description                                                                                   | Examples</span>
+<span id="cb10-56"><a href="#cb10-56"></a>| --- | ----------- | ----------- | --------------------------------------------------------------------------------------------- | -----------</span>
+<span id="cb10-57"><a href="#cb10-57"></a>| 13  | campaign    | numeric     | number of contacts performed during this campaign and for this client                         | Includes last contact</span>
+<span id="cb10-58"><a href="#cb10-58"></a>| 14  | pdays       | numeric     | number of days that passed by after the client was last contacted from a previous campaign    | <span class="in">`999`</span> means client was not previously contacted</span>
+<span id="cb10-59"><a href="#cb10-59"></a>| 15  | previous    | numeric     | number of contacts performed before this campaign and for this client                         |</span>
+<span id="cb10-60"><a href="#cb10-60"></a>| 16  | poutcome    | categorical | outcome of the previous marketing campaign                                                    | <span class="in">`failure`</span>, <span class="in">`nonexistent`</span>, <span class="in">`success`</span></span>
+<span id="cb10-61"><a href="#cb10-61"></a></span>
+<span id="cb10-62"><a href="#cb10-62"></a><span class="fu">### Output variable</span></span>
+<span id="cb10-63"><a href="#cb10-63"></a></span>
+<span id="cb10-64"><a href="#cb10-64"></a>|  #  | Variable    | Type        | Description                               | Examples</span>
+<span id="cb10-65"><a href="#cb10-65"></a>| --- | ----------- | ----------- | ----------------------------------------- | -----------</span>
+<span id="cb10-66"><a href="#cb10-66"></a>| 17  | deposit     | binary      | has the client subscribed a term deposit? | <span class="in">`yes`</span>, <span class="in">`no`</span></span>
+<span id="cb10-67"><a href="#cb10-67"></a></span>
+<span id="cb10-68"><a href="#cb10-68"></a><span class="fu"># Librerías</span></span>
+<span id="cb10-69"><a href="#cb10-69"></a></span>
+<span id="cb10-70"><a href="#cb10-70"></a><span class="in">```{r setup, include=FALSE}</span></span>
+<span id="cb10-71"><a href="#cb10-71"></a>knitr<span class="sc">::</span>opts_chunk<span class="sc">$</span><span class="fu">set</span>(<span class="at">echo =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb10-72"><a href="#cb10-72"></a>knitr<span class="sc">::</span>opts_chunk<span class="sc">$</span><span class="fu">set</span>(<span class="at">message =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb10-73"><a href="#cb10-73"></a>knitr<span class="sc">::</span>opts_chunk<span class="sc">$</span><span class="fu">set</span>(<span class="at">warning =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb10-74"><a href="#cb10-74"></a><span class="fu">library</span>(splitstackshape)</span>
+<span id="cb10-75"><a href="#cb10-75"></a><span class="fu">library</span>(patchwork)</span>
+<span id="cb10-76"><a href="#cb10-76"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb10-77"><a href="#cb10-77"></a><span class="in">```</span></span>
+<span id="cb10-78"><a href="#cb10-78"></a></span>
+<span id="cb10-79"><a href="#cb10-79"></a>Para la base de datos seleccionada genere una muestra aleatoria estratificada y balanceada por "depósito" de tamaño <span class="in">`n = 2000`</span> utilizando como semilla los últimos tres dígitos del DNI/PASAPORTE. Guarde los datos en un archivo y realice todo el trabajo práctico con la muestra generada.</span>
+<span id="cb10-80"><a href="#cb10-80"></a></span>
+<span id="cb10-83"><a href="#cb10-83"></a><span class="in">```{r}</span></span>
+<span id="cb10-84"><a href="#cb10-84"></a>n <span class="ot">&lt;-</span> <span class="dv">2000</span></span>
+<span id="cb10-85"><a href="#cb10-85"></a><span class="fu">set.seed</span>(<span class="dv">108</span>)</span>
+<span id="cb10-86"><a href="#cb10-86"></a><span class="in">```</span></span>
+<span id="cb10-87"><a href="#cb10-87"></a></span>
+<span id="cb10-90"><a href="#cb10-90"></a><span class="in">```{r}</span></span>
+<span id="cb10-91"><a href="#cb10-91"></a>df <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">'data/training_data.csv'</span>)</span>
+<span id="cb10-92"><a href="#cb10-92"></a>df <span class="ot">&lt;-</span> <span class="fu">stratified</span>(df, <span class="fu">c</span>(<span class="st">"deposit"</span>),n)</span>
+<span id="cb10-93"><a href="#cb10-93"></a><span class="in">```</span></span>
+<span id="cb10-94"><a href="#cb10-94"></a></span>
+<span id="cb10-95"><a href="#cb10-95"></a></span>
+<span id="cb10-96"><a href="#cb10-96"></a>Realice un análisis estadístico de cada una de las variables numéricas para cada valor de</span>
+<span id="cb10-97"><a href="#cb10-97"></a>depósito. Presente la información en forma tabular y conteniendo las siguientes</span>
+<span id="cb10-98"><a href="#cb10-98"></a>medidas descriptivas:</span>
+<span id="cb10-99"><a href="#cb10-99"></a></span>
+<span id="cb10-100"><a href="#cb10-100"></a><span class="ss">* </span>Cantidad de datos</span>
+<span id="cb10-101"><a href="#cb10-101"></a><span class="ss">* </span>Mínimo, máximo</span>
+<span id="cb10-102"><a href="#cb10-102"></a><span class="ss">* </span>Media, mediana, moda</span>
+<span id="cb10-103"><a href="#cb10-103"></a><span class="ss">* </span>Varianza, desviación estándar</span>
+<span id="cb10-104"><a href="#cb10-104"></a><span class="ss">* </span>Coeficiente de variación</span>
+<span id="cb10-105"><a href="#cb10-105"></a><span class="ss">* </span>Cuartil 1, cuartil 3</span>
+<span id="cb10-106"><a href="#cb10-106"></a><span class="ss">* </span>Rango intercuartílico</span>
+<span id="cb10-107"><a href="#cb10-107"></a><span class="ss">* </span>MAD</span>
+<span id="cb10-108"><a href="#cb10-108"></a><span class="ss">* </span>Asimetría</span>
+<span id="cb10-109"><a href="#cb10-109"></a><span class="ss">* </span>Curtosis</span>
+<span id="cb10-110"><a href="#cb10-110"></a></span>
+<span id="cb10-113"><a href="#cb10-113"></a><span class="in">```{r}</span></span>
+<span id="cb10-114"><a href="#cb10-114"></a><span class="fu">summary</span>(df)</span>
+<span id="cb10-115"><a href="#cb10-115"></a><span class="in">```</span></span>
+<span id="cb10-118"><a href="#cb10-118"></a><span class="in">```{r}</span></span>
+<span id="cb10-119"><a href="#cb10-119"></a>numeric_cols <span class="ot">=</span> <span class="fu">c</span>(<span class="st">"age"</span>, <span class="st">"balance"</span>, <span class="st">"duration"</span>, <span class="st">"campaign"</span>, <span class="st">"pdays"</span>, <span class="st">"previous"</span>, <span class="st">"poutcome"</span>)</span>
+<span id="cb10-120"><a href="#cb10-120"></a><span class="in">```</span></span>
+<span id="cb10-121"><a href="#cb10-121"></a></span>
+<span id="cb10-124"><a href="#cb10-124"></a><span class="in">```{r}</span></span>
+<span id="cb10-125"><a href="#cb10-125"></a>p1 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(df, <span class="fu">aes</span>(<span class="at">x=</span>deposit, <span class="at">y=</span>age)) <span class="sc">+</span> <span class="fu">geom_boxplot</span>(<span class="at">outlier.colour=</span><span class="st">"red"</span>, <span class="at">outlier.shape=</span><span class="dv">8</span>, <span class="at">outlier.size=</span><span class="dv">4</span>)</span>
+<span id="cb10-126"><a href="#cb10-126"></a><span class="in">```</span></span>
+<span id="cb10-127"><a href="#cb10-127"></a></span>
+<span id="cb10-130"><a href="#cb10-130"></a><span class="in">```{r}</span></span>
+<span id="cb10-131"><a href="#cb10-131"></a>p2 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(df, <span class="fu">aes</span>(<span class="at">x=</span>deposit, <span class="at">y=</span>balance)) <span class="sc">+</span> <span class="fu">geom_boxplot</span>(<span class="at">outlier.colour=</span><span class="st">"red"</span>, <span class="at">outlier.shape=</span><span class="dv">8</span>, <span class="at">outlier.size=</span><span class="dv">4</span>)</span>
+<span id="cb10-132"><a href="#cb10-132"></a><span class="in">```</span></span>
+<span id="cb10-133"><a href="#cb10-133"></a></span>
+<span id="cb10-136"><a href="#cb10-136"></a><span class="in">```{r}</span></span>
+<span id="cb10-137"><a href="#cb10-137"></a>p3 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(df, <span class="fu">aes</span>(<span class="at">x=</span>deposit, <span class="at">y=</span>duration)) <span class="sc">+</span> <span class="fu">geom_boxplot</span>(<span class="at">outlier.colour=</span><span class="st">"red"</span>, <span class="at">outlier.shape=</span><span class="dv">8</span>, <span class="at">outlier.size=</span><span class="dv">4</span>)</span>
+<span id="cb10-138"><a href="#cb10-138"></a><span class="in">```</span></span>
+<span id="cb10-139"><a href="#cb10-139"></a></span>
+<span id="cb10-142"><a href="#cb10-142"></a><span class="in">```{r}</span></span>
+<span id="cb10-143"><a href="#cb10-143"></a>p1 <span class="sc">+</span> p2 <span class="sc">+</span> p3</span>
+<span id="cb10-144"><a href="#cb10-144"></a><span class="in">```</span></span>
+<span id="cb10-145"><a href="#cb10-145"></a></span>
+<span id="cb10-148"><a href="#cb10-148"></a><span class="in">```{r}</span></span>
+<span id="cb10-149"><a href="#cb10-149"></a><span class="in">```</span></span>
+<span id="cb10-150"><a href="#cb10-150"></a></span>
+<span id="cb10-151"><a href="#cb10-151"></a></span>
+<span id="cb10-154"><a href="#cb10-154"></a><span class="in">```{r}</span></span>
+<span id="cb10-155"><a href="#cb10-155"></a><span class="in">```</span></span>
+<span id="cb10-156"><a href="#cb10-156"></a></span>
+<span id="cb10-157"><a href="#cb10-157"></a></span>
+<span id="cb10-160"><a href="#cb10-160"></a><span class="in">```{r}</span></span>
+<span id="cb10-161"><a href="#cb10-161"></a><span class="in">```</span></span>
+<span id="cb10-162"><a href="#cb10-162"></a></span>
+<span id="cb10-163"><a href="#cb10-163"></a></span>
+<span id="cb10-166"><a href="#cb10-166"></a><span class="in">```{r}</span></span>
+<span id="cb10-167"><a href="#cb10-167"></a><span class="in">```</span></span>
+<span id="cb10-168"><a href="#cb10-168"></a></span>
+<span id="cb10-169"><a href="#cb10-169"></a></span>
+<span id="cb10-172"><a href="#cb10-172"></a><span class="in">```{r}</span></span>
+<span id="cb10-173"><a href="#cb10-173"></a><span class="in">```</span></span>
+<span id="cb10-174"><a href="#cb10-174"></a></span>
+<span id="cb10-175"><a href="#cb10-175"></a></span>
+<span id="cb10-178"><a href="#cb10-178"></a><span class="in">```{r}</span></span>
+<span id="cb10-179"><a href="#cb10-179"></a><span class="in">```</span></span>
+<span id="cb10-180"><a href="#cb10-180"></a></span>
+<span id="cb10-181"><a href="#cb10-181"></a></span>
+<span id="cb10-184"><a href="#cb10-184"></a><span class="in">```{r}</span></span>
+<span id="cb10-185"><a href="#cb10-185"></a><span class="in">```</span></span>
+<span id="cb10-186"><a href="#cb10-186"></a></span>
+<span id="cb10-187"><a href="#cb10-187"></a></span>
+<span id="cb10-190"><a href="#cb10-190"></a><span class="in">```{r}</span></span>
+<span id="cb10-191"><a href="#cb10-191"></a><span class="in">```</span></span>
+<span id="cb10-192"><a href="#cb10-192"></a></span>
+<span id="cb10-193"><a href="#cb10-193"></a></span>
+<span id="cb10-196"><a href="#cb10-196"></a><span class="in">```{r}</span></span>
+<span id="cb10-197"><a href="#cb10-197"></a><span class="in">```</span></span>
+<span id="cb10-198"><a href="#cb10-198"></a></span>
+<span id="cb10-199"><a href="#cb10-199"></a></span>
+<span id="cb10-202"><a href="#cb10-202"></a><span class="in">```{r}</span></span>
+<span id="cb10-203"><a href="#cb10-203"></a><span class="in">```</span></span>
+<span id="cb10-204"><a href="#cb10-204"></a></span>
+<span id="cb10-205"><a href="#cb10-205"></a></span>
+<span id="cb10-208"><a href="#cb10-208"></a><span class="in">```{r}</span></span>
+<span id="cb10-209"><a href="#cb10-209"></a><span class="in">```</span></span>
+<span id="cb10-210"><a href="#cb10-210"></a></span>
+<span id="cb10-211"><a href="#cb10-211"></a></span>
+<span id="cb10-214"><a href="#cb10-214"></a><span class="in">```{r}</span></span>
+<span id="cb10-215"><a href="#cb10-215"></a><span class="in">```</span></span>
+<span id="cb10-216"><a href="#cb10-216"></a></span>
+<span id="cb10-217"><a href="#cb10-217"></a></span>
+<span id="cb10-220"><a href="#cb10-220"></a><span class="in">```{r}</span></span>
+<span id="cb10-221"><a href="#cb10-221"></a><span class="in">```</span></span>
+<span id="cb10-222"><a href="#cb10-222"></a></span>
+<span id="cb10-223"><a href="#cb10-223"></a></span>
+<span id="cb10-226"><a href="#cb10-226"></a><span class="in">```{r}</span></span>
+<span id="cb10-227"><a href="#cb10-227"></a><span class="in">```</span></span>
+<span id="cb10-228"><a href="#cb10-228"></a></span>
+<span id="cb10-229"><a href="#cb10-229"></a></span>
+<span id="cb10-232"><a href="#cb10-232"></a><span class="in">```{r}</span></span>
+<span id="cb10-233"><a href="#cb10-233"></a><span class="in">```</span></span>
+<span id="cb10-234"><a href="#cb10-234"></a></span>
+<span id="cb10-235"><a href="#cb10-235"></a></span>
+<span id="cb10-238"><a href="#cb10-238"></a><span class="in">```{r}</span></span>
+<span id="cb10-239"><a href="#cb10-239"></a><span class="in">```</span></span>
+</code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div></div></div></div></div>
+</div> <!-- /content -->
+
+
+
+</body></html>
