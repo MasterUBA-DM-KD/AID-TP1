@@ -7,13 +7,28 @@ description: |
 format:
   html:
     page-layout: full
-    code-fold: false
-    code-line-numbers: true
+    code-fold: show
+    code-line-numbers: false
     code-tools: true
+    code-overflow: scroll
+    tidy: true
     toc: true
     toc_float: true
     toc-location: left
     css: doc.css
+    grid: 
+      body-width: 2000px
+      sidebar-width: 200px
+      margin-width: 200px
+website:
+  sidebar:
+      style: "docked"
+      search: false
+execute:
+  echo: false
+  warning: false
+  freeze: auto
+
 ---
 
 # Data
@@ -69,12 +84,12 @@ Thus, this input should only be included for benchmark purposes and should be di
 
 # Librerías
 
-```{r setup, include=FALSE}
+```{r setup, echo=FALSE, include=FALSE, results='hide'}
 knitr::opts_chunk$set(echo = TRUE)
 knitr::opts_chunk$set(message = FALSE)
 knitr::opts_chunk$set(warning = FALSE)
-#styler::tidyverse_style()
-#styler::style_dir()
+styler::tidyverse_style()
+styler::style_dir()
 library(splitstackshape)
 library(patchwork)
 library(ggplot2)
@@ -85,11 +100,27 @@ library(moments)
 library(reactable)
 ```
 
-```{r set-options, echo=FALSE, cache=TRUE, include=FALSE, results='hide'}
-options(width=10000)
-options(digits=4)
-colFormat(digits=4)
+```{r set-options, echo=FALSE, cache=FALSE, include=FALSE, results='hide'}
+options(width = 10000)
+options(digits = 4)
+colFormat(digits = 4)
 ```
+
+```{r echo=FALSE, include=FALSE, results='hide'}
+reacttable_defaults <- colDef(
+  header = function(value) {
+    gsub(".", " ", value, fixed = TRUE)
+  },
+  cell = function(value) {
+    format(value, digits = 3, nsmall = 0)
+  },
+  align = "center",
+  minWidth = 100,
+  maxWidth = 10000,
+  headerStyle = list(background = "#f7f7f8")
+)
+```
+
 
 ------
 
@@ -114,7 +145,7 @@ df <- stratified(df, c("deposit"), n)
 Se muestra algunas filas de los datos.
 
 ```{r}
-reactable(head(df))
+reactable(head(df), defaultColDef = reacttable_defaults)
 ```
 
 ------
@@ -137,33 +168,22 @@ Realice un análisis estadístico de cada una de las variables numéricas para c
 Se listan las variables numéricas a fin de analizarlas por separado.
 
 ```{r}
-numeric_cols <- c("age", "balance", "duration", "campaign", "pdays", "previous")
-```
-
-Se listan las variables categóricas a fin de analizarlas por separado.
-
-```{r}
-categorical_cols <-
-  c(
-    "job",
-    "marital",
-    "education",
-    "default",
-    "housing",
-    "loan",
-    "contact",
-    "month",
-    "day",
-    "poutcome"
-  )
+numeric_cols <-
+  c("age", "balance", "duration", "campaign", "pdays", "previous")
 ```
 
 Se creó un subset de los datos con únicamente las variables numéricas.
 
 ```{r}
 df_numeric <- subset(df, select = numeric_cols)
-reactable(head(df_numeric))
 ```
+
+A continuación se muestran ejemplos del subset de datos.
+
+```{r}
+reactable(head(df_numeric), defaultColDef = reacttable_defaults)
+```
+
 
 Se crean dos funciones:
 
@@ -180,20 +200,22 @@ Se crean dos funciones:
 
 ```{r}
 getmode <- function(v) {
-   uniqv <- unique(v)
-   uniqv[which.max(tabulate(match(v, uniqv)))]
+  uniqv <- unique(v)
+  uniqv[which.max(tabulate(match(v, uniqv)))]
 }
 
 multiple.func <- function(x) {
-  c(MAD = mad(x), 
-    Mode= getmode(x), 
-    Var=var(x), 
-    SD= sd(x), 
-    CV = sd(x) / mean(x), 
-    IQR= IQR(x), 
-    Asimetria=skewness(x), 
-    Curtosis=kurtosis(x), 
-    Count = length(x))
+  c(
+    MAD = mad(x),
+    Mode = getmode(x),
+    Var = var(x),
+    SD = sd(x),
+    CV = sd(x) / mean(x),
+    IQR = IQR(x),
+    Skewness = skewness(x),
+    Kurtosis = kurtosis(x),
+    Count = length(x)
+  )
 }
 ```
 
@@ -202,16 +224,20 @@ Se procedió a calcular los estadísticos de las columnas numéricas.
 ```{r}
 numeric_summary <-
   data.frame(unclass(do.call(cbind, lapply(df_numeric, summary))),
-             check.names = FALSE,
-             stringsAsFactors = FALSE)
+    check.names = FALSE,
+    stringsAsFactors = FALSE
+  )
+other_stats <- data.frame(lapply(df_numeric, multiple.func))
+numeric_summary <- rbind(numeric_summary, other_stats)
 ```
 
 Se muestran a continuación los estadísticos.
 
 ```{r}
-other_stats <- data.frame(lapply(df_numeric, multiple.func))
-numeric_summary <- rbind(numeric_summary, other_stats)
-reactable(numeric_summary)
+reactable(numeric_summary,
+  pagination = FALSE,
+  defaultColDef = reacttable_defaults
+)
 ```
 
 ------
@@ -221,26 +247,41 @@ reactable(numeric_summary)
 Represente gráficamente cada variable numérica eligiendo el gráfico que considere apropiado. Considere la posibilidad de generar rangos de datos para su análisis y representación gráfica de las variables.
 
 ```{r}
-df_numeric$deposit = df$deposit
+df_numeric$deposit <- df$deposit
 ```
 
-```{r}
-p <- df %>%
-  ggplot(aes(deposit, balance, )) +
-  geom_boxplot(
-    outlier.colour = "red",
-    outlier.shape = 16,
-    outlier.size = 2,
-    notch = FALSE
-  )
+```{r cache=TRUE}
+#| layout-ncol: 2
+#| layout-nrow: 3
+#| layout-align: center
+#| layout-valign: top
 
+p
+for (col in numeric_cols) {
+  var <- sym(col)
+  p <- df_numeric %>%
+    ggplot(aes(x = deposit, y = df_numeric[[col]])) +
+    geom_boxplot(
+      outlier.colour = "red",
+      outlier.shape = 16,
+      outlier.size = 2,
+      notch = TRUE
+    )
+  
+}
 ggplotly(p)
+# ggplotly(p)
+# ggplotly(p1)
+# ggplotly(p2)
+# ggplotly(p3)
+# ggplotly(p4)
+# ggplotly(p5)
 ```
 
 
 ```{r}
-p <- ggplot( df_numeric, aes(x=duration, color=deposit)) +
-    geom_density(alpha=0.8)
+p <- ggplot(df_numeric, aes(x = duration, color = deposit)) +
+  geom_density(alpha = 0.8)
 
 ggplotly(p)
 ```
@@ -257,12 +298,16 @@ pair <- c("deposit", "marital")
 
 
 ```{r}
-table_freq <- data.frame(table(subset(df, select= pair)))
+table_freq <- table(subset(df, select = pair))
+table_per <- data.frame(table_freq / sum(table_freq))
+table_freq <- data.frame(table_freq)
+```
+
+```{r}
 reactable(table_freq)
 ```
 
 ```{r}
-table_per <- data.frame(table_freq / sum(table_freq))
 reactable(table_per)
 ```
 
@@ -273,24 +318,28 @@ reactable(table_per)
 Realice un gráfico para representar la tabla construida en el punto 4.
 
 ```{r}
-barplot(table(subset(df, select= pair)))
+barplot(table(subset(df, select = pair)))
 ```
 
 
 ```{r}
-
-
-p <- ggplot(data=table_freq, aes(x=marital, y=Freq, fill=deposit)) +
-  geom_bar(stat="identity")+
-  geom_text(aes(label=len), vjust=1.6, color="white", size=3.5)+
-  scale_fill_brewer(palette="Paired")+
+p <-
+  ggplot(data = table_freq, aes(x = marital, y = Freq, fill = deposit)) +
+  geom_bar(stat = "identity") +
+  geom_text(
+    aes(label = Freq),
+    vjust = 1.6,
+    color = "white",
+    size = 3.5
+  ) +
+  scale_fill_brewer(palette = "Paired") +
   theme_minimal()
 
 ggplotly(p)
 ```
 
 ```{r}
-barplot(table_per)
+# barplot(table_per)
 ```
 
 ## 6. Asociación entre `a` y `b`
@@ -319,9 +368,30 @@ alpha <- 0.05
 adecuado para entender si existe asociación entre ambas. Utilice un nivel de
 significación del 5%.
 
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
 
 8. Seleccione otra variable continua y estime la diferencia de medias según el valor de la
 variable “deposit” con un nivel de confianza del 95%. Interprete el resultado obtenido.
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
 
 
 9. Según el resultado obtenido en el punto 7.- realice un test de hipótesis apropiado para
@@ -329,27 +399,82 @@ determinar la diferencia de medias de la variable en estudio. Trabaje con una
 significación del 5%. Presente el planteo de hipótesis adecuado, la resolución y la
 decisión a tomar.
 
-
-10. Seleccione una muestra de 30 elementos estratificada según la variable “deposit”. ¿Se
-puede afirmar que hay diferencias significativas en el balance de los que realizaron el
-depósito respecto a aquellos que no lo hicieron? Elija un test de hipótesis adecuado.
-Trabaje con una significación del 5%.
+```{r}
+```
 
 
-11. Decida si existen diferencias significativas en la duración respecto los niveles de
-educación (“secondary”, “tertiary”, “primary”, “unknown”). Justifique. Utilice un test
-adecuado. Realice las pruebas necesarias para comprobar los supuestos. Trabaje con
-una significación del 5%.
+```{r}
+```
 
 
-12. Elija dos variables cuantitativas, determine la variable explicativa y la variable explicada.
-Encuentre la ecuación de la recta de regresión lineal que explique la relación entre las
-variables elegidas. Escriba conclusiones acerca de la significatividad del modelo aplicado.
-Puede acompañar el modelo de un gráfico adecuado.
+```{r}
+```
+
+
+10. Seleccione una muestra de 30 elementos estratificada según la variable “deposit”. ¿Se puede afirmar que hay diferencias significativas en el balance de los que realizaron el depósito respecto a aquellos que no lo hicieron? Elija un test de hipótesis adecuado. Trabaje con una significación del 5%.
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+11. Decida si existen diferencias significativas en la duración respecto los niveles de educación (“secondary”, “tertiary”, “primary”, “unknown”). Justifique. Utilice un test adecuado. Realice las pruebas necesarias para comprobar los supuestos. Trabaje con una significación del 5%.
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+12. Elija dos variables cuantitativas, determine la variable explicativa y la variable explicada. Encuentre la ecuación de la recta de regresión lineal que explique la relación entre las variables elegidas. Escriba conclusiones acerca de la significatividad del modelo aplicado. Puede acompañar el modelo de un gráfico adecuado.
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
 
 
 13. Presente un informe final con un mínimo de 500 y un máximo de 800 palabras del
-análisis de la base de datos, describiendo la base de datos, indicando la presencia de
-valores atípicos y las conclusiones a las que se abordó luego del análisis.
+análisis de la base de datos, describiendo la base de datos, indicando la presencia de valores atípicos y las conclusiones a las que se abordó luego del análisis.
 
 
+
+######### Other
+
+
+Se listan las variables categóricas a fin de analizarlas por separado.
+
+```{r}
+categorical_cols <-
+  c(
+    "job",
+    "marital",
+    "education",
+    "default",
+    "housing",
+    "loan",
+    "contact",
+    "month",
+    "day",
+    "poutcome"
+  )
+```
