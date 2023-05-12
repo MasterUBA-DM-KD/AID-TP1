@@ -129,6 +129,23 @@ Se muestran algunas filas de los datos.
 head(df)
 ```
 
+Se buscó cuantificar la cantidad de valores nulos en cada columna.
+
+```{r}
+sapply(df, function(x) {
+  length(which(is.na(x)))
+})
+```
+
+Se concluyó que no hay nulos en los datos.
+
+La variabe `duration` se escaló de segundos a minutos, a fin de mejorar el entendimiento de dicha variable.
+
+```{r}
+df$duration <- df$duration / 60
+```
+
+
 ------------------------------------------------------------------------
 
 # Consignas
@@ -180,11 +197,29 @@ Realice un análisis estadístico de cada una de las variables numéricas para c
 -   Asimetría
 -   Curtosis
 
-Se listan las variables numéricas a fin de analizarlas por separado.
+Se listan las variables numéricas.
 
 ```{r}
 numeric_cols <-
-  c("age", "duration", "campaign", "previous", "pdays", "balance")
+  c("age", "balance", "campaign", "duration", "pdays", "previous")
+```
+
+Se listan las variables categóricas.
+
+```{r}
+categorical_cols <-
+  c(
+    "contact",
+    "day",
+    "default",
+    "education",
+    "housing",
+    "job",
+    "loan",
+    "marital",
+    "month",
+    "poutcome"
+  )
 ```
 
 Se creó un subset de los datos con únicamente las variables numéricas.
@@ -256,38 +291,240 @@ numeric_summary
 
 Represente gráficamente cada variable numérica eligiendo el gráfico que considere apropiado. Considere la posibilidad de generar rangos de datos para su análisis y representación gráfica de las variables.
 
+#### `Age`
+
+```{r cache=TRUE}
+p <-
+  ggplot(df,
+         aes_string(y = numeric_cols[1], x = target, fill = target)) +
+  geom_boxplot(
+    alpha = 0.5,
+    outlier.colour = "red",
+    outlier.shape = 8,
+    outlier.size = 2
+  )
+
+p1 <-
+  ggplot(df,
+         aes_string(x = numeric_cols[1], color = target, fill = target)) +
+  geom_histogram(alpha = 0.5)
+
+(p + guides(colour = "none" , fill = "none")) + p1 + plot_layout(ncol = 2) &
+  theme_classic() + theme(legend.position = "bottom", legend.justification = "right")
+```
+> En el diagrama de caja se diferencian los outliers en color rojo y forma de estrella. No obstante, los mismos pueden no tener mucho sentido ya que la edad es una característica intrínseca y natural que no se considera atípica en sí misma. Cabe destacar que no se encontraron observaciones por debajo de los 18 años.
+
+En el caso de `age` se definieron los siguientes rangos de edades:
+
+* Adulto Joven: 18 ≤ `age` < 40
+* Adulto Mediana edad: 40 ≤ `age` < 59
+* Adulto Mayor: `age` ≥ 59
+
+Se creó la variable `age_category`
+
 ```{r}
-df_numeric$deposit <- df$deposit
+df$age_category <- cut(
+  df$age,
+  breaks = c(18, 40, 59, Inf),
+  labels = c("Adulto Joven", "Adulto Mediana edad", "Adulto Mayor"),
+  right = FALSE
+)
+```
+
+Se generó una tabla de frecuencias con las nuevas categorías.
+
+```{r}
+association_table <- data.frame(table(df$deposit, df$age_category))
+names(association_table) <- c(target, "age_category", "Frequency")
+association_table
 ```
 
 ```{r cache=TRUE}
 p <-
-  ggplot(df_numeric,
-         aes_string(x = numeric_cols[1], color = target, fill = target)) +
-  geom_histogram(alpha = 0.5)
+  ggplot(association_table,
+         aes_string(x = "age_category", y = "Frequency", fill = target)) +
+  geom_col(position="dodge") +
+  geom_text(
+    aes_string(label = "Frequency"),
+    size = 3,
+    hjust = 0.5,
+    vjust = 1,
+    position = position_dodge(width = .9)
+  ) +
+  xlab("Age Category")
 
+p + theme_classic() + theme(legend.position = "bottom", legend.justification = "right")
+```
+> En los rangos de edades `Adulto Joven` y `Aldulto Mediana edad` los datos se encontraron cercanos a estar balanceados, mientras en el rango `Adulto Mayor` se encontró lo contrario.
+
+#### `Balance`
+
+```{r}
+p <-
+  ggplot(df,
+         aes_string(y = numeric_cols[2], x = target, fill = target)) +
+  geom_boxplot(alpha = 0.5, outlier.colour="red", outlier.shape=8,
+                outlier.size=2)
 p1 <-
-  ggplot(df_numeric,
+  ggplot(df,
          aes_string(x = numeric_cols[2], color = target, fill = target)) +
   geom_density(alpha = 0.5)
 
 (p + guides(colour = "none" , fill = "none")) + p1 + plot_layout(ncol = 2) &
-  theme_classic() + theme(legend.position = "bottom")
+  theme_classic() + theme(legend.position = "bottom", legend.justification = "right")
+```
+> De la variable en cuestión no se cuenta con información como el tipo de moneda. No obstante, la variable `balance` da cuenta de los fondos que los individuos tienen en su caja de ahorro. Se encontró que los datos tienen una larga cola hacia la derecha con valores atípicos, es decir, individuos con alta liquidez. Por otro lado, una corta cola a la izquierda da cuenta de individuos que cuentan con liquidez negativa.
+
+En el caso de `balance` se definieron los siguientes rangos haciendo uso de los cuartiles.
+
+* Sobregiro: `balance` < 0
+* Sustancial: 0 ≤ `balance` < Q1
+* Considerable: Q1 ≤ `balance` < Q3
+* Elevado: `balance` ≥ Q3
+
+Se calcularon los cuartiles `Q1` y `Q3` de la variable de `balance`
+
+```{r}
+Q1 <- quantile(df$balance, 0.25)
+Q3 <- quantile(df$balance, 0.75)
+```
+
+Se creó la variable `balance_category`
+
+```{r}
+df$balance_category <- cut(
+  df$balance,
+  breaks = c(-Inf, 0, Q1, Q3, Inf),
+  labels = c("Sobregiro", "Sustancial", "Considerable", "Elevado"),
+  right = FALSE
+)
+```
+
+Se generó una tabla de frecuencias con las nuevas categorías.
+
+```{r}
+association_table <- data.frame(table(df$deposit, df$balance_category))
+names(association_table) <- c(target, "balance_category", "Frequency")
+association_table
 ```
 
 ```{r cache=TRUE}
 p <-
-  ggplot(df_numeric,
+  ggplot(association_table,
+         aes_string(x = "balance_category", y = "Frequency", fill = target)) +
+  geom_col(position="dodge") +
+  geom_text(
+    aes_string(label = "Frequency"),
+    size = 3,
+    hjust = 0.5,
+    vjust = 1,
+    position = position_dodge(width = .9)
+  ) +
+  xlab("Balance Category")
+
+p + theme_classic() + theme(legend.position = "bottom", legend.justification = "right")
+```
+
+> Los individuos en el rango `Considerable` resultaron ser el principal objetivo de la campaña y los datos se encuentran cercanos a estar balanceados. 
+
+```{r}
+print("Total categoría Considerable")
+print(sum(association_table[association_table$balance_category == "Considerable",]$Frequency))
+print("Total otras categorías")
+print(
+  sum(
+    association_table[association_table$balance_category == "Sobregiro",]$Frequency,
+    association_table[association_table$balance_category == "Sustancial",]$Frequency,
+    association_table[association_table$balance_category == "Elevado",]$Frequency
+  )
+)
+```
+
+> Cabe destacar, el total de los individuos con baja liquidez (rangos `Sobregiro` y `Sustancial`) e individuos con mayor liquidez (rango `Elevado`) iguala al total de los individuos de liquidez `Considerable`.
+
+#### `Campaign`
+
+```{r}
+p <-
+  ggplot(df,
+         aes_string(y = numeric_cols[3], x = target, fill = target)) +
+  geom_boxplot(alpha = 0.5, outlier.colour="red", outlier.shape=8,
+                outlier.size=2)
+p1 <-
+  ggplot(df,
+         aes_string(x = numeric_cols[3], color = target, fill = target)) +
+  geom_histogram(alpha = 0.5)
+
+(p + guides(colour = "none" , fill = "none")) + p1 + plot_layout(ncol = 2) &
+  theme_classic() + theme(legend.position = "bottom", legend.justification = "right")
+```
+> Lorem
+
+```{r}
+Q2 <- quantile(df$campaign, 0.50)
+Q3 <- quantile(df$campaign, 0.75)
+```
+
+
+Se creó la variable `campaign_category`
+
+```{r}
+df$campaign_category <- cut(
+  df$campaign,
+  breaks = c(0, Q2, Q3, Inf),
+  labels = c("Pocas", "Normal", "Elevado"),
+  right = FALSE
+)
+```
+
+
+Se generó una tabla de frecuencias con las nuevas categorías.
+
+```{r}
+association_table <- data.frame(table(df$deposit, df$campaign_category))
+names(association_table) <- c(target, "campaign_category", "Frequency")
+association_table
+```
+
+
+```{r cache=TRUE}
+p <-
+  ggplot(association_table,
+         aes_string(x = "campaign_category", y = "Frequency", fill = target)) +
+  geom_col(position="dodge") +
+  geom_text(
+    aes_string(label = "Frequency"),
+    size = 3,
+    hjust = 0.5,
+    vjust = 1,
+    position = position_dodge(width = .9)
+  ) +
+  xlab("Campaign Category")
+
+p + theme_classic() + theme(legend.position = "bottom", legend.justification = "right")
+```
+
+
+
+
+
+
+```{r cache=TRUE}
+p <-
+  ggplot(df,
          aes_string(y = numeric_cols[3], x = target, fill = target)) + geom_jitter(width = 0.1, aes_string(color =
                                                                                                              target))
 p1 <-
-  ggplot(df_numeric,
-         aes_string(y = numeric_cols[4], x = target, fill = target)) +
+  ggplot(df,
+         aes_string(y = numeric_cols[3], x = target, fill = target)) +
   geom_jitter(width = 0.1, aes_string(color = target))
 
 p + guides(colour = "none" , fill = "none") + p1 + plot_layout(ncol = 2) &
-  theme_classic() + theme(legend.position = "bottom")
+  theme_classic() + theme(legend.position = "bottom", legend.justification = "right")
 ```
+
+
+#### `Duration`
 
 ```{r cache=TRUE}
 p <-
@@ -298,7 +535,7 @@ p1 <-
   geom_jitter(width = 0.1, aes_string(color = target))
 
 p + guides(colour = "none" , fill = "none") + p1 + plot_layout(ncol = 2) &
-  theme_classic() + theme(legend.position = "bottom")
+  theme_classic() + theme(legend.position = "bottom", legend.justification = "right")
 ```
 
 ## 4. Tabla de frecuencias \~ `marital`
@@ -341,8 +578,10 @@ p <-
     position = "stack"
   )
 
-p + theme_classic()
+p + theme_classic() + theme(legend.position = "bottom", legend.justification = "right")
 ```
+
+
 ```{r cache=TRUE}
 p <-
   ggplot(table_per,
@@ -356,111 +595,109 @@ p <-
     position = "stack"
   )
 
-p + theme_classic()
+p + theme_classic() + theme(legend.position = "bottom", legend.justification = "right")
 ```
 
-## 6. Asociación entre `a` y `b`
+## 6. Asociación entre `age` y `balance`
 
-Elija dos variables numéricas, establezca rangos que representen distintos niveles de cada una y defina nuevas variables categóricas. Aplique un test adecuado para entender si existe asociación entre ambas. Utilice un nivel de significación del 5%.
+Elija dos variables `numéricas`, establezca rangos que representen distintos niveles de cada una y defina nuevas variables categóricas. Aplique un test adecuado para entender si existe asociación entre ambas. Utilice un nivel de significación del 5%.
 
 ```{r}
-pair <- c("balance", "age")
+pair <- c("age", "duration")
 ```
 
-```{r}
 
-```
 
 ```{r}
-```
 
-```{r}
-```
-
-7.  Seleccione la variable "education" y elija otra variable categórica. Aplique un test adecuado para entender si existe asociación entre ambas. Utilice un nivel de significación del 5%.
-
-```{r}
 ```
 
 ```{r}
+
+```
+
+7.  Seleccione la variable `education` y elija otra variable categórica. Aplique un test adecuado para entender si existe asociación entre ambas. Utilice un nivel de significación del 5%.
+
+```{r}
+pair <- c("education", "default")
 ```
 
 ```{r}
-```
 
-8.  Seleccione otra variable continua y estime la diferencia de medias según el valor de la variable "deposit" con un nivel de confianza del 95%. Interprete el resultado obtenido.
-
-```{r}
 ```
 
 ```{r}
+
+```
+
+8.  Seleccione otra variable continua y estime la diferencia de medias según el valor de la variable `deposit` con un nivel de confianza del 95%. Interprete el resultado obtenido.
+
+```{r}
+pair <- c("age", target)
 ```
 
 ```{r}
-```
 
-9.  Según el resultado obtenido en el punto 8.- realice un test de hipótesis apropiado para determinar la diferencia de medias de la variable en estudio. Trabaje con una significación del 5%. Presente el planteo de hipótesis adecuado, la resolución y la decisión a tomar.
-
-```{r}
 ```
 
 ```{r}
+
+```
+
+9.  Según el resultado obtenido en el `punto 8.`- realice un test de hipótesis apropiado para determinar la diferencia de medias de la variable en estudio. Trabaje con una significación del 5%. Presente el planteo de hipótesis adecuado, la resolución y la decisión a tomar.
+
+```{r}
+
 ```
 
 ```{r}
-```
 
-10. Seleccione una muestra de 30 elementos estratificada según la variable "deposit". ¿Se puede afirmar que hay diferencias significativas en el balance de los que realizaron el depósito respecto a aquellos que no lo hicieron? Elija un test de hipótesis adecuado. Trabaje con una significación del 5%.
-
-```{r}
 ```
 
 ```{r}
+
+```
+
+10. Seleccione una muestra de `30` elementos estratificada según la variable `deposit`. ¿Se puede afirmar que hay diferencias significativas en el balance de los que realizaron el `depósito` respecto a aquellos que no lo hicieron? Elija un test de hipótesis adecuado. Trabaje con una significación del 5%.
+
+```{r}
+
 ```
 
 ```{r}
-```
 
-11. Decida si existen diferencias significativas en la duración respecto los niveles de educación ("secondary", "tertiary", "primary", "unknown"). Justifique. Utilice un test adecuado. Realice las pruebas necesarias para comprobar los supuestos. Trabaje con una significación del 5%.
-
-```{r}
 ```
 
 ```{r}
+
+```
+
+11. Decida si existen diferencias significativas en la `duración` respecto los niveles de `educación` (`secondary`, `tertiary`, `primary`, `unknown`). Justifique. Utilice un test adecuado. Realice las pruebas necesarias para comprobar los supuestos. Trabaje con una significación del 5%.
+
+```{r}
+pair <- c("education", "duration")
 ```
 
 ```{r}
+
+```
+
+```{r}
+
 ```
 
 12. Elija dos variables cuantitativas, determine la variable explicativa y la variable explicada. Encuentre la ecuación de la recta de regresión lineal que explique la relación entre las variables elegidas. Escriba conclusiones acerca de la significatividad del modelo aplicado. Puede acompañar el modelo de un gráfico adecuado.
 
 ```{r}
+
 ```
 
 ```{r}
+
 ```
 
 ```{r}
+
 ```
 
 13. Presente un informe final con un mínimo de 500 y un máximo de 800 palabras del análisis de la base de datos, describiendo la base de datos, indicando la presencia de valores atípicos y las conclusiones a las que se abordó luego del análisis.
-
-######### Other
-
-Se listan las variables categóricas a fin de analizarlas por separado.
-
-```{r}
-categorical_cols <-
-  c(
-    "job",
-    "marital",
-    "education",
-    "default",
-    "housing",
-    "loan",
-    "contact",
-    "month",
-    "day",
-    "poutcome"
-  )
-```
