@@ -45,7 +45,7 @@ The data is related to direct marketing campaigns of a financial institution.The
 ### Input Variables
 
 | \#  | Variable  | Type        | Description            | Examples                                                                                                                                                    |
-|-------------|-------------|-------------|----------------------|-------------|
+|--------|--------|--------|--------|-----------------------------------------|
 | 1   | age       | numeric     |                        |                                                                                                                                                             |
 | 2   | job       | categorical | type of job            | `admin`, `blue-collar`, `entrepreneur`, `housemaid`, `management`, `retired`, `self-employed`, `services`, `student`, `technician`, `unemployed`, `unknown` |
 | 3   | marital   | categorical | marital status         | `divorced`\*, `married`, `single`, `unknown`                                                                                                                |
@@ -60,7 +60,7 @@ The data is related to direct marketing campaigns of a financial institution.The
 *Related with the last contact of the current campaign*
 
 | \#  | Variable | Type        | Description                         | Examples                                |
-|-----------|-----------|-----------|----------------------------|-----------|
+|------------|------------|------------|------------------|---------------------|
 | 9   | contact  | categorical | contact communication type          | `cellular`, `telephone`                 |
 | 10  | month    | categorical | last contact month of year          | `jan`, `feb`, `mar`, ... , `nov`, `dec` |
 | 11  | day      | categorical | last contact day of the week        | `mon`, `tue`, `wed`, `thu`, `fri`       |
@@ -71,7 +71,7 @@ The data is related to direct marketing campaigns of a financial institution.The
 *Other attributes*
 
 | \#  | Variable | Type        | Description                                                                                | Examples                                        |
-|--------|--------|--------|----------------------------------------|--------|
+|----------|----------|----------|------------------------------|-------------|
 | 13  | campaign | numeric     | number of contacts performed during this campaign and for this client                      | Includes last contact                           |
 | 14  | pdays    | numeric     | number of days that passed by after the client was last contacted from a previous campaign | `999` means client was not previously contacted |
 | 15  | previous | numeric     | number of contacts performed before this campaign and for this client                      |                                                 |
@@ -144,7 +144,6 @@ La variabe `duration` se escaló de segundos a minutos, a fin de mejorar el ente
 ```{r}
 df$duration <- df$duration / 60
 ```
-
 
 ------------------------------------------------------------------------
 
@@ -291,7 +290,7 @@ numeric_summary
 
 Represente gráficamente cada variable numérica eligiendo el gráfico que considere apropiado. Considere la posibilidad de generar rangos de datos para su análisis y representación gráfica de las variables.
 
-#### `Age`
+### `age`
 
 ```{r cache=TRUE}
 p <-
@@ -312,13 +311,14 @@ p1 <-
 (p + guides(colour = "none" , fill = "none")) + p1 + plot_layout(ncol = 2) &
   theme_classic() + theme(legend.position = "bottom", legend.justification = "right")
 ```
+
 > En el diagrama de caja se diferencian los outliers en color rojo y forma de estrella. No obstante, los mismos pueden no tener mucho sentido ya que la edad es una característica intrínseca y natural que no se considera atípica en sí misma. Cabe destacar que no se encontraron observaciones por debajo de los 18 años.
 
 En el caso de `age` se definieron los siguientes rangos de edades:
 
-* Adulto Joven: 18 ≤ `age` < 40
-* Adulto Mediana edad: 40 ≤ `age` < 59
-* Adulto Mayor: `age` ≥ 59
+-   Adulto Joven: 18 ≤ `age` \< 40
+-   Adulto Mediana edad: 40 ≤ `age` \< 59
+-   Adulto Mayor: `age` ≥ 59
 
 Se creó la variable `age_category`
 
@@ -355,9 +355,10 @@ p <-
 
 p + theme_classic() + theme(legend.position = "bottom", legend.justification = "right")
 ```
+
 > En los rangos de edades `Adulto Joven` y `Aldulto Mediana edad` los datos se encontraron cercanos a estar balanceados, mientras en el rango `Adulto Mayor` se encontró lo contrario.
 
-#### `Balance`
+### `balance`
 
 ```{r}
 p <-
@@ -373,14 +374,15 @@ p1 <-
 (p + guides(colour = "none" , fill = "none")) + p1 + plot_layout(ncol = 2) &
   theme_classic() + theme(legend.position = "bottom", legend.justification = "right")
 ```
+
 > De la variable en cuestión no se cuenta con información como el tipo de moneda. No obstante, la variable `balance` da cuenta de los fondos que los individuos tienen en su caja de ahorro. Se encontró que los datos tienen una larga cola hacia la derecha con valores atípicos, es decir, individuos con alta liquidez. Por otro lado, una corta cola a la izquierda da cuenta de individuos que cuentan con liquidez negativa.
 
 En el caso de `balance` se definieron los siguientes rangos haciendo uso de los cuartiles.
 
-* Sobregiro: `balance` < 0
-* Sustancial: 0 ≤ `balance` < Q1
-* Considerable: Q1 ≤ `balance` < Q3
-* Elevado: `balance` ≥ Q3
+-   Sobregiro: `balance` \< 0
+-   Sustancial: 0 ≤ `balance` \< Q1
+-   Considerable: Q1 ≤ `balance` \< Q3
+-   Elevado: `balance` ≥ Q3
 
 Se calcularon los cuartiles `Q1` y `Q3` de la variable de `balance`
 
@@ -403,8 +405,10 @@ df$balance_category <- cut(
 Se generó una tabla de frecuencias con las nuevas categorías.
 
 ```{r}
-association_table <- data.frame(table(df$deposit, df$balance_category))
-names(association_table) <- c(target, "balance_category", "Frequency")
+association_table <-
+  data.frame(table(df$deposit, df$balance_category))
+names(association_table) <-
+  c(target, "balance_category", "Frequency")
 association_table
 ```
 
@@ -412,7 +416,7 @@ association_table
 p <-
   ggplot(association_table,
          aes_string(x = "balance_category", y = "Frequency", fill = target)) +
-  geom_col(position="dodge") +
+  geom_col(position = "dodge") +
   geom_text(
     aes_string(label = "Frequency"),
     size = 3,
@@ -425,31 +429,35 @@ p <-
 p + theme_classic() + theme(legend.position = "bottom", legend.justification = "right")
 ```
 
-> Los individuos en el rango `Considerable` resultaron ser el principal objetivo de la campaña y los datos se encuentran cercanos a estar balanceados. 
+> Los individuos en el rango `Considerable` resultaron ser el principal objetivo de la campaña y los datos se encuentran cercanos a estar balanceados.
 
 ```{r}
 print("Total categoría Considerable")
-print(sum(association_table[association_table$balance_category == "Considerable",]$Frequency))
+print(sum(association_table[association_table$balance_category == "Considerable", ]$Frequency))
 print("Total otras categorías")
 print(
   sum(
-    association_table[association_table$balance_category == "Sobregiro",]$Frequency,
-    association_table[association_table$balance_category == "Sustancial",]$Frequency,
-    association_table[association_table$balance_category == "Elevado",]$Frequency
+    association_table[association_table$balance_category == "Sobregiro", ]$Frequency,
+    association_table[association_table$balance_category == "Sustancial", ]$Frequency,
+    association_table[association_table$balance_category == "Elevado", ]$Frequency
   )
 )
 ```
 
 > Cabe destacar, el total de los individuos con baja liquidez (rangos `Sobregiro` y `Sustancial`) e individuos con mayor liquidez (rango `Elevado`) iguala al total de los individuos de liquidez `Considerable`.
 
-#### `Campaign`
+### `campaign`
 
 ```{r}
 p <-
   ggplot(df,
          aes_string(y = numeric_cols[3], x = target, fill = target)) +
-  geom_boxplot(alpha = 0.5, outlier.colour="red", outlier.shape=8,
-                outlier.size=2)
+  geom_boxplot(
+    alpha = 0.5,
+    outlier.colour = "red",
+    outlier.shape = 8,
+    outlier.size = 2
+  )
 p1 <-
   ggplot(df,
          aes_string(x = numeric_cols[3], color = target, fill = target)) +
@@ -458,13 +466,34 @@ p1 <-
 (p + guides(colour = "none" , fill = "none")) + p1 + plot_layout(ncol = 2) &
   theme_classic() + theme(legend.position = "bottom", legend.justification = "right")
 ```
+
+> De acuerdo a la distribución de la variable en cuestión se intuyó que existe un grupo mayoritario que toma la decisión en menos de las 10 llamadas y un pequeño grupo que presenta un proceso particularmente largo.
+
+Con el propósito de mejorar el análisis de la variable se propone analizarla haciendo uso de otro gráfico.
+
+```{r cache=TRUE}
+p <-
+  ggplot(df,
+         aes_string(x = numeric_cols[3], y = target, fill = target)) +
+  geom_jitter(width = 0.1, aes_string(color = target))
+
+p + scale_x_discrete(name ="Campaign", limits=seq(0, 35, 5)) & theme_classic() + theme(legend.position = "bottom", legend.justification = "right") 
+```
+
 > Lorem
+
+Dada la larga cola hacia la derecha (presencia de outliers) se definieron los siguientes rangos haciendo uso de la mediana:
+
+* Decidido: 0 ≤ `campaign` < Q2
+* Indeciso: Q2 ≤ `campaign` < Q3
+* Muy indeciso: `campaign` ≥ Q3
+
+Se calcularon los cuartiles `Q2` y `Q3` de la variable de `campaign`
 
 ```{r}
 Q2 <- quantile(df$campaign, 0.50)
 Q3 <- quantile(df$campaign, 0.75)
 ```
-
 
 Se creó la variable `campaign_category`
 
@@ -472,11 +501,10 @@ Se creó la variable `campaign_category`
 df$campaign_category <- cut(
   df$campaign,
   breaks = c(0, Q2, Q3, Inf),
-  labels = c("Pocas", "Normal", "Elevado"),
+  labels = c("Decidido", "Indeciso", "Muy indeciso"),
   right = FALSE
 )
 ```
-
 
 Se generó una tabla de frecuencias con las nuevas categorías.
 
@@ -485,7 +513,6 @@ association_table <- data.frame(table(df$deposit, df$campaign_category))
 names(association_table) <- c(target, "campaign_category", "Frequency")
 association_table
 ```
-
 
 ```{r cache=TRUE}
 p <-
@@ -504,39 +531,178 @@ p <-
 p + theme_classic() + theme(legend.position = "bottom", legend.justification = "right")
 ```
 
+> Lorem
 
-
-
-
+### `duration`
 
 ```{r cache=TRUE}
 p <-
   ggplot(df,
-         aes_string(y = numeric_cols[3], x = target, fill = target)) + geom_jitter(width = 0.1, aes_string(color =
-                                                                                                             target))
+         aes_string(y = numeric_cols[4], x = target, fill = target)) +
+  geom_boxplot(
+    alpha = 0.5,
+    outlier.colour = "red",
+    outlier.shape = 8,
+    outlier.size = 2
+  )
+
 p1 <-
   ggplot(df,
-         aes_string(y = numeric_cols[3], x = target, fill = target)) +
-  geom_jitter(width = 0.1, aes_string(color = target))
+         aes_string(x = numeric_cols[4], color = target, fill = target)) +
+  geom_density(alpha = 0.5)
 
-p + guides(colour = "none" , fill = "none") + p1 + plot_layout(ncol = 2) &
+(p + guides(colour = "none" , fill = "none")) + p1 + plot_layout(ncol = 2) &
   theme_classic() + theme(legend.position = "bottom", legend.justification = "right")
 ```
 
+> Lorem
 
-#### `Duration`
+En el caso de `duration` se definieron los siguientes rangos:
+
+-   : `duration` = 0
+-   : 0 < `duration` ≤ Q2
+-   : `duration` > Q2
+
+Se calculó el cuartil `Q2` de la variable `duration`
+
+```{r}
+Q2 <- quantile(df$duration, 0.50)
+```
+
+Se creó la variable `duration_category`
+
+```{r}
+df$duration_category <- cut(
+  df$duration,
+  breaks = c(0, Q2, Inf),
+  labels = c("Corta", "Extensa"),
+  right = FALSE
+)
+```
+
+Se generó una tabla de frecuencias con las nuevas categorías.
+
+```{r}
+association_table <- data.frame(table(df$deposit, df$duration_category))
+names(association_table) <- c(target, "duration_category", "Frequency")
+association_table
+```
 
 ```{r cache=TRUE}
 p <-
-  ggplot(df_numeric, aes_string(x = target, y = numeric_cols[5])) +
-  geom_jitter(width = 0.1, aes_string(color = target))
-p1 <-
-  ggplot(df_numeric, aes_string(x = target, y = numeric_cols[6])) +
-  geom_jitter(width = 0.1, aes_string(color = target))
+  ggplot(association_table,
+         aes_string(x = "duration_category", y = "Frequency", fill = target)) +
+  geom_col(position="dodge") +
+  geom_text(
+    aes_string(label = "Frequency"),
+    size = 3,
+    hjust = 0.5,
+    vjust = 1,
+    position = position_dodge(width = .9)
+  ) +
+  xlab("Duration Category")
 
-p + guides(colour = "none" , fill = "none") + p1 + plot_layout(ncol = 2) &
+p + theme_classic() + theme(legend.position = "bottom", legend.justification = "right")
+```
+
+> Lorem
+
+### `pdays`
+
+```{r cache=TRUE}
+p <-
+  ggplot(df,
+         aes_string(y = numeric_cols[5], x = target, fill = target)) +
+  geom_boxplot(
+    alpha = 0.5,
+    outlier.colour = "red",
+    outlier.shape = 8,
+    outlier.size = 2
+  )
+
+p1 <-
+  ggplot(df,
+         aes_string(x = numeric_cols[5], color = target, fill = target)) +
+  geom_histogram(alpha = 0.5)
+
+(p + guides(colour = "none" , fill = "none")) + p1 + plot_layout(ncol = 2) &
   theme_classic() + theme(legend.position = "bottom", legend.justification = "right")
 ```
+
+> Lorem
+
+En el caso de `pdays` se definieron los siguientes rangos:
+
+-   Negativo: `pdays` < 0
+-   Positivo: `pdays` ≥ 0
+
+> Únicamente se definió este par de rangos ya que `Q1`, `Q2`, `Q3` de la variable en cuestión corresponden al valor de `-1` (ver análisis descriptivo).
+
+Se creó la variable `duration_category`
+
+```{r}
+df$pdays_category <- cut(
+  df$pdays,
+  breaks = c(-Inf, 0, Inf),
+  labels = c("Negativo", "Positivo"),
+  right = FALSE
+)
+```
+
+Se generó una tabla de frecuencias con las nuevas categorías.
+
+```{r}
+association_table <- data.frame(table(df$deposit, df$pdays_category))
+names(association_table) <- c(target, "pdays_category", "Frequency")
+association_table
+```
+
+```{r cache=TRUE}
+p <-
+  ggplot(association_table,
+         aes_string(x = "pdays_category", y = "Frequency", fill = target)) +
+  geom_col(position="dodge") +
+  geom_text(
+    aes_string(label = "Frequency"),
+    size = 3,
+    hjust = 0.5,
+    vjust = 1,
+    position = position_dodge(width = .9)
+  ) +
+  xlab("pdays Category")
+
+p + theme_classic() + theme(legend.position = "bottom", legend.justification = "right")
+```
+
+> Lorem
+
+Con el propósito de mejorar el análisis de la variable se propone analizarla haciendo uso de otro gráfico.
+
+```{r cache=TRUE}
+p <-
+  ggplot(df[df$pdays>=0,],
+         aes_string(y = numeric_cols[5], x = target, fill = target)) +
+  geom_boxplot(
+    alpha = 0.5,
+    outlier.colour = "red",
+    outlier.shape = 8,
+    outlier.size = 2
+  )
+
+p1 <-
+  ggplot(df[df$pdays>=0,],
+         aes_string(x = numeric_cols[5], color = target, fill = target)) +
+  geom_histogram(alpha = 0.5)
+
+(p + guides(colour = "none" , fill = "none")) + p1 + plot_layout(ncol = 2) &
+  theme_classic() + theme(legend.position = "bottom", legend.justification = "right")
+```
+
+> Lorem
+
+### `previous`
+
+
 
 ## 4. Tabla de frecuencias \~ `marital`
 
@@ -581,7 +747,6 @@ p <-
 p + theme_classic() + theme(legend.position = "bottom", legend.justification = "right")
 ```
 
-
 ```{r cache=TRUE}
 p <-
   ggplot(table_per,
@@ -605,8 +770,6 @@ Elija dos variables `numéricas`, establezca rangos que representen distintos ni
 ```{r}
 pair <- c("age", "duration")
 ```
-
-
 
 ```{r}
 
