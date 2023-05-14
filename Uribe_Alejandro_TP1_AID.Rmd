@@ -14,6 +14,7 @@ output:
     code-tools: true
     code-overflow: scroll
     theme: cerulean
+    number-sections: true
     highlight: pygments
     tidy: true
     toc: true
@@ -36,53 +37,6 @@ execute:
   freeze: auto
 ---
 
-# Data
-
-The data is related to direct marketing campaigns of a financial institution.The marketing campaigns were based on phone calls. Often, more than one contact to the same client was required, in order to assess if the product (bank term deposit) would be `yes` or not `no` subscribed. You will have to analyze the dataset in order to find ways to look for future strategies in order to improve future marketing campaigns for the bank.
-
-## Attribute Information
-
-### Input Variables
-
-| \#  | Variable  | Type        | Description            | Examples                                                                                                                                                    |
-|--------|--------|--------|--------|-----------------------------------------|
-| 1   | age       | numeric     |                        |                                                                                                                                                             |
-| 2   | job       | categorical | type of job            | `admin`, `blue-collar`, `entrepreneur`, `housemaid`, `management`, `retired`, `self-employed`, `services`, `student`, `technician`, `unemployed`, `unknown` |
-| 3   | marital   | categorical | marital status         | `divorced`\*, `married`, `single`, `unknown`                                                                                                                |
-| 4   | education | categorical |                        | `basic.4y`, `basic.6y`, `basic.9y`, `high.school`, `illiterate`, `professional.course`, `university.degree`, `unknown`                                      |
-| 5   | default   | categorical | has credit in default? | `no`, `yes`, `unknown`                                                                                                                                      |
-| 6   | balance   | numeric     |                        |                                                                                                                                                             |
-| 7   | housing   | categorical | has housing loan?      | `no`, `yes`, `unknown`                                                                                                                                      |
-| 8   | loan      | categorical | has personal loan?     | `no`, `yes`, `unknown`                                                                                                                                      |
-
-> \* **Note:** `divorced` means `divorced` or `widowed`
-
-*Related with the last contact of the current campaign*
-
-| \#  | Variable | Type        | Description                         | Examples                                |
-|------------|------------|------------|------------------|---------------------|
-| 9   | contact  | categorical | contact communication type          | `cellular`, `telephone`                 |
-| 10  | month    | categorical | last contact month of year          | `jan`, `feb`, `mar`, ... , `nov`, `dec` |
-| 11  | day      | categorical | last contact day of the week        | `mon`, `tue`, `wed`, `thu`, `fri`       |
-| 12  | duration | numeric     | last contact duration, in seconds\* |                                         |
-
-> \* **Note:** This attribute highly affects the output `target` (e.g., if `duration=0` then `y=no`). Yet, the duration is not known before a call is performed. Also, after the end of the call y is obviously known. Thus, this input should only be included for benchmark purposes and should be discarded if the intention is to have a realistic predictive model.
-
-*Other attributes*
-
-| \#  | Variable | Type        | Description                                                                                | Examples                                        |
-|----------|----------|----------|------------------------------|-------------|
-| 13  | campaign | numeric     | number of contacts performed during this campaign and for this client                      | Includes last contact                           |
-| 14  | pdays    | numeric     | number of days that passed by after the client was last contacted from a previous campaign | `999` means client was not previously contacted |
-| 15  | previous | numeric     | number of contacts performed before this campaign and for this client                      |                                                 |
-| 16  | poutcome | categorical | outcome of the previous marketing campaign                                                 | `failure`, `nonexistent`, `success`             |
-
-### Output variable
-
-| \#  | Variable | Type   | Description                               | Examples    |
-|-----------|-----------|-----------|------------------------------|-----------|
-| 17  | deposit  | binary | has the client subscribed a term deposit? | `yes`, `no` |
-
 # Librerías
 
 ```{r, echo=TRUE, include=TRUE, results='hide', message=FALSE}
@@ -92,12 +46,15 @@ library(magrittr)
 library(moments)
 library(dplyr)
 library(patchwork)
+library(car)
+library(knitr)
+library(bookdown)
 ```
 
 ```{r set-options, echo=FALSE, cache=FALSE, include=FALSE, results='hide'}
 options(width = 10000)
 options(digits = 4)
-options(nsmall=0)
+options(nsmall = 0)
 ```
 
 ```{r setup, echo=FALSE, include=FALSE, results='hide'}
@@ -105,6 +62,53 @@ knitr::opts_chunk$set(echo = TRUE)
 knitr::opts_chunk$set(message = FALSE)
 knitr::opts_chunk$set(warning = FALSE)
 ```
+
+# Datos
+
+Los datos están relacionados con campañas de marketing directo de una institución financiera. Las campañas de marketing se basaron en llamadas telefónicas. A menudo, se requirió más de un contacto con el mismo cliente para determinar si el producto (un depósito a plazo bancario) sería suscrito `yes` o `no`. Deberás analizar el conjunto de datos para buscar formas de encontrar estrategias futuras y mejorar las campañas de marketing para el banco.
+
+## Información de los atributos
+
+### Variables de entrada
+
+| \#  | Variable  | Tipo | Descripción | Ejemplos |
+|-----|-----------|------|-------------|----------|
+| 1   | age       | numérico    |      |          |
+| 2   | job       | categórico  | tipo de empleo | `admin`, `blue-collar`, `entrepreneur`, `housemaid`, `management`, `retired`, `self-employed`, `services`, `student`, `technician`, `unemployed`, `unknown`|
+| 3   | marital   | categórico  | estado civil | `divorced`\*, `married`, `single`, `unknown`|
+| 4   | education | categórico |  | `basic.4y`, `basic.6y`, `basic.9y`, `high.school`, `illiterate`, `professional.course`, `university.degree`, `unknown` |
+| 5   | default   | categórico  | tiene crédito en mora? |  `no`, `yes`, `unknown` |
+| 6   | balance   | numérico    | | |
+| 7   | housing   | categórico  | tiene préstamo hipotecario?   | `no`, `yes`, `unknown` |
+| 8   | loan      | categórico  | tiene préstamo personal?  | `no`, `yes`, `unknown` |
+
+> \* **Nota:** `divorced` significa `divorced` o `widowed`
+
+*Relacionado con el último contacto de la campaña actual*
+
+| \#  | Variable | Tipo | Descripción | Ejemplos |
+|-----|-----------|-----|-------------|----------|
+| 9   | contact   | categórico  | tipo de comunicación de contacto | `cellular`, `telephone` |
+| 10  | month     | categórico  | último mes de contacto en el año | `jan`, `feb`, `mar`, ... , `nov`, `dec` |
+| 11  | day       | categórico  | último día de la semana de contacto | `mon`, `tue`, `wed`, `thu`, `fri` |
+| 12  | duration  | numérico    | duración del último contacto, en segundos\* | |
+
+> \* **Nota:** Este atributo afecta significativamente el resultado `target` (por ejemplo, si `duration=0` entonces `y=no`). Sin embargo, la duración no se conoce antes de realizar una llamada. Además, después de finalizar la llamada, es obvio si `y` es conocido. Por lo tanto, este atributo solo debería incluirse con fines de referencia y debería descartarse si la intención es tener un modelo predictivo realista.
+
+*Otros atributos*
+
+| \#  | Variable  | Tipo        | Descripción | Ejemplos |
+|-----|-----------|-------------|-------------|----------|
+| 13  | campaign  | numérico    | número de contactos realizados durante esta campaña para este cliente, incluyendo el último contacto | |
+| 14  | pdays     | numérico    | número de días transcurridos desde el último contacto de una campaña anterior con el cliente | `999` significa que el cliente no fue contactado previamente |
+| 15  | previous  | numérico    | número de contactos realizados antes de esta campaña para este cliente | |
+| 16  | poutcome  | categórico  | resultado de la campaña de marketing anterior | `failure`, `nonexistent`, `success` |
+
+### Variable de salida
+
+| \#  | Variable | Tipo | Descripción | Ejemplos    |
+|-----|----------|---------|---------|-------------|
+| 17  | deposit  | binario | el cliente ha suscrito un depósito a plazo fijo? | `yes`, `no` |
 
 # Constantes
 
@@ -119,7 +123,7 @@ alpha <- 0.05
 Se cargan los datos.
 
 ```{r}
-df <- read.csv("data/training_data.csv")
+df <- read.csv("data/data.csv")
 ```
 
 Se muestran algunas filas de los datos.
@@ -159,11 +163,11 @@ n_deposit <- 1000
 target <- "deposit"
 ```
 
-Se toma la muestra estraficada.
+Se toma la muestra estratificada.
 
 ```{r}
 set.seed(108)
-df <- stratified(df, target, size=n_deposit)
+df <- stratified(df, target, size = n_deposit)
 ```
 
 Se muestra algunas filas de la muestra.
@@ -236,11 +240,11 @@ Se crearon dos funciones:
 
 -   Obtener la moda
 -   Calcular los estadísticos faltantes:
+    -   MAD
     -   Moda
     -   Varianza, Desviación estándar
     -   Coeficiente de variación
     -   Rango intercuartílico
-    -   MAD
     -   Asimetría
     -   Curtosis
     -   Cantidad de datos
@@ -271,8 +275,9 @@ Se procedió a calcular los estadísticos de las columnas numéricas.
 ```{r}
 numeric_summary <-
   data.frame(unclass(do.call(cbind, lapply(df_numeric, summary))),
-             check.names = FALSE,
-             stringsAsFactors = FALSE)
+    check.names = FALSE,
+    stringsAsFactors = FALSE
+  )
 other_stats <- data.frame(lapply(df_numeric, multiple.func))
 numeric_summary <- rbind(numeric_summary, other_stats)
 ```
@@ -291,10 +296,20 @@ Represente gráficamente cada variable numérica eligiendo el gráfico que consi
 
 ### `age`
 
-```{r cache=TRUE}
+Se graficó la distribución de datos de la variable en cuestión diferenciado según `deposit`.
+
+```{r echo=FALSE, collapse=TRUE}
+i <- 1
+var <- numeric_cols[i]
+title <- paste("Distribución de", var, "según", target)
+```
+
+```{r}
 p <-
-  ggplot(df,
-         aes_string(y = numeric_cols[1], x = target, fill = target)) +
+  ggplot(
+    df,
+    aes_string(y = var, x = target, fill = target)
+  ) +
   geom_boxplot(
     alpha = 0.5,
     outlier.colour = "red",
@@ -303,15 +318,17 @@ p <-
   )
 
 p1 <-
-  ggplot(df,
-         aes_string(x = numeric_cols[1], color = target, fill = target)) +
+  ggplot(
+    df,
+    aes_string(x = var, color = target, fill = target)
+  ) +
   geom_histogram(alpha = 0.5)
 
-(p + guides(colour = "none" , fill = "none")) + p1 + plot_layout(ncol = 2) &
+(p + guides(colour = "none", fill = "none")) + p1 + plot_layout(ncol = 2) + plot_annotation(title = title) &
   theme_classic() + theme(legend.position = "bottom", legend.justification = "right")
 ```
 
-> En el diagrama de caja se diferencian los outliers en color rojo y forma de estrella. No obstante, los mismos pueden no tener mucho sentido ya que la edad es una característica intrínseca y natural que no se considera atípica en sí misma. Cabe destacar que no se encontraron observaciones por debajo de los 18 años.
+> En el diagrama de caja se diferencian los outliers en color rojo y forma de estrella. No obstante, los mismos pueden no tener mucho sentido ya que la edad es una característica intrínseca y natural que no se considera atípica en sí misma. Cabe destacar que no hay individuos por debajo de los 18 años.
 
 En el caso de `age` se definieron los siguientes rangos de edades:
 
@@ -319,13 +336,17 @@ En el caso de `age` se definieron los siguientes rangos de edades:
 -   Adulto Mediana edad: 40 ≤ `age` \< 59
 -   Adulto Mayor: `age` ≥ 59
 
+```{r}
+breaks <- c(18, 40, 59, Inf)
+labels <- c("Adulto Joven", "Adulto Mediana edad", "Adulto Mayor")
+```
+
 Se creó la variable `age_category`
 
 ```{r}
-df$age_category <- cut(
-  df$age,
-  breaks = c(18, 40, 59, Inf),
-  labels = c("Adulto Joven", "Adulto Mediana edad", "Adulto Mayor"),
+df$age_category <- cut(df$age,
+  breaks = breaks,
+  labels = labels,
   right = FALSE
 )
 ```
@@ -338,11 +359,14 @@ names(association_table) <- c(target, "age_category", "Frequency")
 association_table
 ```
 
-```{r cache=TRUE}
+```{r}
+title <- paste("Distribución Age Category según", target)
 p <-
-  ggplot(association_table,
-         aes_string(x = "age_category", y = "Frequency", fill = target)) +
-  geom_col(position="dodge") +
+  ggplot(
+    association_table,
+    aes_string(x = "age_category", y = "Frequency", fill = target)
+  ) +
+  geom_col(alpha = 0.5, position = "dodge") +
   geom_text(
     aes_string(label = "Frequency"),
     size = 3,
@@ -352,26 +376,55 @@ p <-
   ) +
   xlab("Age Category")
 
-p + theme_classic() + theme(legend.position = "bottom", legend.justification = "right")
+p + plot_annotation(title = title) + theme_classic() + theme(legend.position = "bottom", legend.justification = "right")
 ```
 
-> En los rangos de edades `Adulto Joven` y `Aldulto Mediana edad` los datos se encontraron cercanos a estar balanceados, mientras en el rango `Adulto Mayor` se encontró lo contrario.
+> En los rangos de edades `Adulto Joven` y `Aldulto Mediana edad` los datos se encontraron cercanos a estar balanceados, mientras en el rango `Adulto Mayor` se encontró lo contrario. La campaña de marketing tuvo como objetivo principal a los indiviudos en la categoría `Aldulto Joven`.
+
+```{r}
+title <- paste("Distribución Adulto Joven según", target)
+p1 <-
+  ggplot(
+    df[df$age_category == "Adulto Joven", ],
+    aes_string(x = var, color = target, fill = target)
+  ) +
+  geom_histogram(alpha = 0.5)
+
+p1 + plot_annotation(title = title) + theme_classic() + theme(legend.position = "bottom", legend.justification = "right")
+```
+
+> La categoría `Adulto Joven` se encuentra mayormente conformada por individuos mayores de 25 años
 
 ### `balance`
 
+Se graficó la distribución de datos de la variable en cuestión diferenciado según `deposit`.
+
+```{r echo=FALSE, collapse=TRUE}
+i <- i + 1
+var <- numeric_cols[i]
+title <- paste("Distribución de", var, "según", target)
+```
+
 ```{r}
 p <-
-  ggplot(df,
-         aes_string(y = numeric_cols[2], x = target, fill = target)) +
-  geom_boxplot(alpha = 0.5, outlier.colour="red", outlier.shape=8,
-                outlier.size=2)
+  ggplot(
+    df,
+    aes_string(y = var, x = target, fill = target)
+  ) +
+  geom_boxplot(
+    alpha = 0.5,
+    outlier.colour = "red",
+    outlier.shape = 8,
+    outlier.size = 2
+  )
 p1 <-
-  ggplot(df,
-         aes_string(x = numeric_cols[2], color = target, fill = target)) +
+  ggplot(
+    df,
+    aes_string(x = var, color = target, fill = target)
+  ) +
   geom_density(alpha = 0.5)
 
-(p + guides(colour = "none" , fill = "none")) + p1 + plot_layout(ncol = 2) &
-  theme_classic() + theme(legend.position = "bottom", legend.justification = "right")
+(p + guides(colour = "none", fill = "none")) + p1 + plot_layout(ncol = 2) + plot_annotation(title = title) & theme_classic() + theme(legend.position = "bottom", legend.justification = "right")
 ```
 
 > De la variable en cuestión no se cuenta con información como el tipo de moneda. No obstante, la variable `balance` da cuenta de los fondos que los individuos tienen en su caja de ahorro. Se encontró que los datos tienen una larga cola hacia la derecha con valores atípicos, es decir, individuos con alta liquidez. Por otro lado, una corta cola a la izquierda da cuenta de individuos que cuentan con liquidez negativa.
@@ -393,10 +446,13 @@ Q3 <- quantile(df$balance, 0.75)
 Se creó la variable `balance_category`
 
 ```{r}
+breaks <- c(-Inf, 0, Q1, Q3, Inf)
+labels <- c("Sobregiro", "Sustancial", "Considerable", "Elevado")
+
 df$balance_category <- cut(
   df$balance,
-  breaks = c(-Inf, 0, Q1, Q3, Inf),
-  labels = c("Sobregiro", "Sustancial", "Considerable", "Elevado"),
+  breaks = breaks,
+  labels = labels,
   right = FALSE
 )
 ```
@@ -411,11 +467,14 @@ names(association_table) <-
 association_table
 ```
 
-```{r cache=TRUE}
+```{r}
+title <- paste("Distribución Balance Category según", target)
 p <-
-  ggplot(association_table,
-         aes_string(x = "balance_category", y = "Frequency", fill = target)) +
-  geom_col(position = "dodge") +
+  ggplot(
+    association_table,
+    aes_string(x = "balance_category", y = "Frequency", fill = target)
+  ) +
+  geom_col(alpha = 0.5, position = "dodge") +
   geom_text(
     aes_string(label = "Frequency"),
     size = 3,
@@ -425,32 +484,51 @@ p <-
   ) +
   xlab("Balance Category")
 
-p + theme_classic() + theme(legend.position = "bottom", legend.justification = "right")
+p + theme_classic() + theme(legend.position = "bottom", legend.justification = "right") + plot_annotation(title = title)
 ```
 
 > Los individuos en el rango `Considerable` resultaron ser el principal objetivo de la campaña y los datos se encuentran cercanos a estar balanceados.
 
 ```{r}
-print("Total categoría Considerable")
-print(sum(association_table[association_table$balance_category == "Considerable", ]$Frequency))
-print("Total otras categorías")
-print(
-  sum(
-    association_table[association_table$balance_category == "Sobregiro", ]$Frequency,
-    association_table[association_table$balance_category == "Sustancial", ]$Frequency,
-    association_table[association_table$balance_category == "Elevado", ]$Frequency
-  )
-)
+considerable_total <- sum(association_table[association_table$balance_category == "Considerable", ]$Frequency)
+
+other_total <- sum(association_table[association_table$balance_category != "Considerable", ]$Frequency)
+
+cat(paste(paste("Total categoría Considerable", considerable_total), paste("Total otras categorías", other_total), sep = "\n"))
 ```
 
 > Cabe destacar, el total de los individuos con baja liquidez (rangos `Sobregiro` y `Sustancial`) e individuos con mayor liquidez (rango `Elevado`) iguala al total de los individuos de liquidez `Considerable`.
 
+```{r}
+title <- paste("Distribución Considerable según", target)
+p1 <-
+  ggplot(
+    df[df$balance_category == "Considerable", ],
+    aes_string(x = var, color = target, fill = target)
+  ) +
+  geom_histogram(alpha = 0.5)
+
+p1 + plot_annotation(title = title) + theme_classic() + theme(legend.position = "bottom", legend.justification = "right")
+```
+
+> La densidad de los individuos en la categoría en cuestión comienza a disminuir a partir de los ~`700` aprox.
+
 ### `campaign`
+
+Se graficó la distribución de datos de la variable en cuestión diferenciado según `deposit`.
+
+```{r echo=FALSE, collapse=TRUE}
+i <- i + 1
+var <- numeric_cols[i]
+title <- paste("Distribución de", var, "según", target)
+```
 
 ```{r}
 p <-
-  ggplot(df,
-         aes_string(y = numeric_cols[3], x = target, fill = target)) +
+  ggplot(
+    df,
+    aes_string(y = var, x = target, fill = target)
+  ) +
   geom_boxplot(
     alpha = 0.5,
     outlier.colour = "red",
@@ -458,34 +536,37 @@ p <-
     outlier.size = 2
   )
 p1 <-
-  ggplot(df,
-         aes_string(x = numeric_cols[3], color = target, fill = target)) +
+  ggplot(
+    df,
+    aes_string(x = var, color = target, fill = target)
+  ) +
   geom_histogram(alpha = 0.5)
 
-(p + guides(colour = "none" , fill = "none")) + p1 + plot_layout(ncol = 2) &
-  theme_classic() + theme(legend.position = "bottom", legend.justification = "right")
+(p + guides(colour = "none", fill = "none")) + p1 + plot_layout(ncol = 2) + plot_annotation(title = title) & theme_classic() + theme(legend.position = "bottom", legend.justification = "right")
 ```
 
-> De acuerdo a la distribución de la variable en cuestión se intuyó que existe un grupo mayoritario que toma la decisión en menos de las 10 llamadas y un pequeño grupo que presenta un proceso particularmente largo.
+> De acuerdo a la distribución de la variable en cuestión se intuyó que existe un grupo mayoritario que toma la decisión en menos de las `10` llamadas y un pequeño grupo que presenta un proceso particularmente largo.
 
 Con el propósito de mejorar el análisis de la variable se propone analizarla haciendo uso de otro gráfico.
 
-```{r cache=TRUE}
+```{r}
 p <-
-  ggplot(df,
-         aes_string(x = numeric_cols[3], y = target, fill = target)) +
-  geom_jitter(width = 0.1, aes_string(color = target))
+  ggplot(
+    df,
+    aes_string(x = var, y = target, fill = target)
+  ) +
+  geom_jitter(alpha = 0.5, width = 0.1, aes_string(color = target))
 
-p + scale_x_discrete(name ="Campaign", limits=seq(0, 35, 5)) & theme_classic() + theme(legend.position = "bottom", legend.justification = "right") 
+p + scale_x_discrete(name = "Campaign", limits = seq(0, 35, 5)) & theme_classic() + theme(legend.position = "bottom", legend.justification = "right")
 ```
 
-> Lorem
+> El descenso más notorio se encuentra en los procesos que toman más de 5 llamadas (independiente de `depsosit`). Si bien hay personas que les toma más de 10 llamadas dar el `yes` hay más individuos que se tomaron más de 10 llamadas para dar el `no`.
 
 Dada la larga cola hacia la derecha (presencia de outliers) se definieron los siguientes rangos haciendo uso de la mediana:
 
-* Decidido: 0 ≤ `campaign` < Q2
-* Indeciso: Q2 ≤ `campaign` < Q3
-* Muy indeciso: `campaign` ≥ Q3
+-   Decidido: 0 ≤ `campaign` \< Q2
+-   Indeciso: Q2 ≤ `campaign` \< Q3
+-   Muy indeciso: `campaign` ≥ Q3
 
 Se calcularon los cuartiles `Q2` y `Q3` de la variable de `campaign`
 
@@ -497,10 +578,11 @@ Q3 <- quantile(df$campaign, 0.75)
 Se creó la variable `campaign_category`
 
 ```{r}
-df$campaign_category <- cut(
-  df$campaign,
-  breaks = c(0, Q2, Q3, Inf),
-  labels = c("Decidido", "Indeciso", "Muy indeciso"),
+breaks <- c(0, Q2, Q3, Inf)
+labels <- c("Decidido", "Indeciso", "Muy indeciso")
+df$campaign_category <- cut(df$campaign,
+  breaks = breaks,
+  labels = labels,
   right = FALSE
 )
 ```
@@ -513,11 +595,13 @@ names(association_table) <- c(target, "campaign_category", "Frequency")
 association_table
 ```
 
-```{r cache=TRUE}
+```{r}
 p <-
-  ggplot(association_table,
-         aes_string(x = "campaign_category", y = "Frequency", fill = target)) +
-  geom_col(position="dodge") +
+  ggplot(
+    association_table,
+    aes_string(x = "campaign_category", y = "Frequency", fill = target)
+  ) +
+  geom_col(alpha = 0.5, position = "dodge") +
   geom_text(
     aes_string(label = "Frequency"),
     size = 3,
@@ -530,14 +614,26 @@ p <-
 p + theme_classic() + theme(legend.position = "bottom", legend.justification = "right")
 ```
 
-> Lorem
+> Gráficamente parece no haber muchas diferencias entre las distintas categorías, excepto por la catergoría `Decidido` que cuenta con más `yes` que `no`.
 
 ### `duration`
 
-```{r cache=TRUE}
+Se graficó la distribución de datos de la variable en cuestión diferenciado según `deposit`.
+
+> Tener en cuenta que la variable en cuestión fue previamente reescalada de `segundos` a `minutos` para facilitar su entendimiento.
+
+```{r echo=FALSE, collapse=TRUE}
+i <- i + 1
+var <- numeric_cols[i]
+title <- paste("Distribución de", var, "según", target)
+```
+
+```{r}
 p <-
-  ggplot(df,
-         aes_string(y = numeric_cols[4], x = target, fill = target)) +
+  ggplot(
+    df,
+    aes_string(y = var, x = target, fill = target)
+  ) +
   geom_boxplot(
     alpha = 0.5,
     outlier.colour = "red",
@@ -546,26 +642,34 @@ p <-
   )
 
 p1 <-
-  ggplot(df,
-         aes_string(x = numeric_cols[4], color = target, fill = target)) +
+  ggplot(
+    df,
+    aes_string(x = var, color = target, fill = target)
+  ) +
   geom_density(alpha = 0.5)
 
-(p + guides(colour = "none" , fill = "none")) + p1 + plot_layout(ncol = 2) &
+(p + guides(colour = "none", fill = "none")) + p1 + plot_layout(ncol = 2) + plot_annotation(title = title) &
   theme_classic() + theme(legend.position = "bottom", legend.justification = "right")
 ```
 
-> Lorem
+> Gráficamente se intuyó que las variables que dan como resultado un `no` toman menos tiempo que aquellas que dan el `yes`.
 
 En el caso de `duration` se definieron los siguientes rangos:
 
--   : `duration` = 0
--   : 0 < `duration` ≤ Q2
--   : `duration` > Q2
+- Especial: `duration`  ≤ 0
+- Corta: 0 \< `duration` ≤ Q3 (`deposit` == `yes`)
+- Extensa: `duration` \> Q3 (`deposit` == `yes`)
 
-Se calculó el cuartil `Q2` de la variable `duration`
+> La categoría `corta` se fijó de acuerdo al `Q3` del subset donde `deposit` == `no` ya que por encima de tal valor se dan mayormente los `yes` y los `no` por debajo de tal valor.
+
+Por otro lado, La categoría `Especial` se creó ya que como consta en la descripción de los atributos:
+
+> Este atributo afecta significativamente el resultado `target` (por ejemplo, si `duration=0` entonces `y=no`). Sin embargo, la duración no se conoce antes de realizar una llamada. Además, después de finalizar la llamada, es obvio si `y` es conocido. Por lo tanto, este atributo solo debería incluirse con fines de referencia y debería descartarse si la intención es tener un modelo predictivo realista.
+
+Se calculó el cuartil `Q3` de la variable `duration`
 
 ```{r}
-Q2 <- quantile(df$duration, 0.50)
+Q3 <- quantile(df[df$deposit == "no", ]$duration, 0.75)
 ```
 
 Se creó la variable `duration_category`
@@ -573,9 +677,9 @@ Se creó la variable `duration_category`
 ```{r}
 df$duration_category <- cut(
   df$duration,
-  breaks = c(0, Q2, Inf),
-  labels = c("Corta", "Extensa"),
-  right = FALSE
+  breaks = c(-Inf, 0, Q3, Inf),
+  labels = c("Especial", "Corta", "Extensa"),
+  right = TRUE
 )
 ```
 
@@ -587,11 +691,13 @@ names(association_table) <- c(target, "duration_category", "Frequency")
 association_table
 ```
 
-```{r cache=TRUE}
+```{r}
 p <-
-  ggplot(association_table,
-         aes_string(x = "duration_category", y = "Frequency", fill = target)) +
-  geom_col(position="dodge") +
+  ggplot(
+    association_table,
+    aes_string(x = "duration_category", y = "Frequency", fill = target)
+  ) +
+  geom_col(alpha = 0.5, position = "dodge") +
   geom_text(
     aes_string(label = "Frequency"),
     size = 3,
@@ -604,14 +710,58 @@ p <-
 p + theme_classic() + theme(legend.position = "bottom", legend.justification = "right")
 ```
 
-> Lorem
+> A pesar de la salvedad que se hace al relacionar la variable en cuestión con `deposit` no se encontraron individuos cuya llamada fuese tan corta como 0s por lo que dicha categoría podría eliminarse. Por otro lado, resultó conveniente categorizar los datos de acuerdo al `Q3` del subset `deposit`==`no` ya que si bien la división no es perfecta las categorías resultantes tienen una clase más representativa.
+
+Se preocedió a eliminar la categoría `Especial`
+
+```{r}
+df$duration_category <- cut(
+  df$duration,
+  breaks = c(0, Q3, Inf),
+  labels = c("Corta", "Extensa"),
+  right = TRUE
+)
+```
+
+Se graficaron las nuevas categorías
+
+```{r}
+p <-
+  ggplot(
+    association_table,
+    aes_string(x = "duration_category", y = "Frequency", fill = target)
+  ) +
+  geom_col(alpha = 0.5, position = "dodge") +
+  geom_text(
+    aes_string(label = "Frequency"),
+    size = 3,
+    hjust = 0.5,
+    vjust = 1,
+    position = position_dodge(width = .9)
+  ) +
+  xlab("Duration Category")
+
+p + theme_classic() + theme(legend.position = "bottom", legend.justification = "right")
+```
+
+
 
 ### `pdays`
 
-```{r cache=TRUE}
+Se graficó la distribución de datos de la variable en cuestión diferenciado según `deposit`.
+
+```{r echo=FALSE, collapse=TRUE}
+i <- i + 1
+var <- numeric_cols[i]
+title <- paste("Distribución de", var, "según", target)
+```
+
+```{r}
 p <-
-  ggplot(df,
-         aes_string(y = numeric_cols[5], x = target, fill = target)) +
+  ggplot(
+    df,
+    aes_string(y = var, x = target, fill = target)
+  ) +
   geom_boxplot(
     alpha = 0.5,
     outlier.colour = "red",
@@ -620,30 +770,32 @@ p <-
   )
 
 p1 <-
-  ggplot(df,
-         aes_string(x = numeric_cols[5], color = target, fill = target)) +
+  ggplot(
+    df,
+    aes_string(x = var, color = target, fill = target)
+  ) +
   geom_histogram(alpha = 0.5)
 
-(p + guides(colour = "none" , fill = "none")) + p1 + plot_layout(ncol = 2) &
+(p + guides(colour = "none", fill = "none")) + p1 + plot_layout(ncol = 2) + plot_annotation(title = title) &
   theme_classic() + theme(legend.position = "bottom", legend.justification = "right")
 ```
 
-> Lorem
+> Se encuentran los datos sesgados a la derecha. Conviene separar los datos al final de la cola de la derecha en una categoría `Especial` ya que como consta en la información de los atributos *`999` significa que el cliente no fue contactado previamente*.
 
 En el caso de `pdays` se definieron los siguientes rangos:
 
--   Negativo: `pdays` < 0
--   Positivo: `pdays` ≥ 0
+-   Corriente: `pdays` \< 999
+-   Especial: `pdays` ≥ 999
 
-> Únicamente se definió este par de rangos ya que `Q1`, `Q2`, `Q3` de la variable en cuestión corresponden al valor de `-1` (ver análisis descriptivo).
+> Únicamente se definió este par de rangos ya que, dado el sesgo, `Q1`, `Q2`, `Q3` de la variable en cuestión corresponden al valor de `999` (ver análisis descriptivo).
 
-Se creó la variable `duration_category`
+Se creó la variable `pdays_category`
 
 ```{r}
 df$pdays_category <- cut(
   df$pdays,
-  breaks = c(-Inf, 0, Inf),
-  labels = c("Negativo", "Positivo"),
+  breaks = c(-Inf, 999, Inf),
+  labels = c("Previamente contactado", "Primer contacto"),
   right = FALSE
 )
 ```
@@ -656,11 +808,13 @@ names(association_table) <- c(target, "pdays_category", "Frequency")
 association_table
 ```
 
-```{r cache=TRUE}
+```{r}
 p <-
-  ggplot(association_table,
-         aes_string(x = "pdays_category", y = "Frequency", fill = target)) +
-  geom_col(position="dodge") +
+  ggplot(
+    association_table,
+    aes_string(x = "pdays_category", y = "Frequency", fill = target)
+  ) +
+  geom_col(alpha = 0.5, position = "dodge") +
   geom_text(
     aes_string(label = "Frequency"),
     size = 3,
@@ -673,14 +827,16 @@ p <-
 p + theme_classic() + theme(legend.position = "bottom", legend.justification = "right")
 ```
 
-> Lorem
+> Los clientes contactados por primera vez, es decir, aquellos en la categoría `Primer contacto`, se encuentra mayormente balanceada con una tendencia a dar el `no`. Aquellos individuos que fueron `Previamente contactados` tendieron a dar más `yes`.
 
 Con el propósito de mejorar el análisis de la variable se propone analizarla haciendo uso de otro gráfico.
 
-```{r cache=TRUE}
+```{r}
 p <-
-  ggplot(df[df$pdays>=0,],
-         aes_string(y = numeric_cols[5], x = target, fill = target)) +
+  ggplot(
+    df[df$pdays < 999, ],
+    aes_string(y = var, x = target, fill = target)
+  ) +
   geom_boxplot(
     alpha = 0.5,
     outlier.colour = "red",
@@ -689,22 +845,35 @@ p <-
   )
 
 p1 <-
-  ggplot(df[df$pdays>=0,],
-         aes_string(x = numeric_cols[5], color = target, fill = target)) +
-  geom_histogram(alpha = 0.5)
+  ggplot(
+    df[df$pdays < 999, ],
+    aes_string(x = var, color = target, fill = target)
+  ) +
+  geom_histogram(alpha = 0.5) +
+  scale_x_continuous(breaks = seq(0, 800, 100))
 
-(p + guides(colour = "none" , fill = "none")) + p1 + plot_layout(ncol = 2) &
+(p + guides(colour = "none", fill = "none")) + p1 + plot_layout(ncol = 2) &
   theme_classic() + theme(legend.position = "bottom", legend.justification = "right")
 ```
 
-> Lorem
+> Se intuye que la campaña de marketing buscó contactar a individuos por primera vez y que aquellos contactados previamente no superan los 400 días (mayormente) desde el último contacto. Ahora bien, hay dos bins que sobresalen sobre los demás en el intervalo `[50, 250]` aprox.
 
 ### `previous`
 
-```{r cache=TRUE}
+Se graficó la distribución de datos de la variable en cuestión diferenciado según `deposit`.
+
+```{r echo=FALSE, collapse=TRUE}
+i <- i + 1
+var <- numeric_cols[i]
+title <- paste("Distribución de", var, "según", target)
+```
+
+```{r}
 p <-
-  ggplot(df,
-         aes_string(y = numeric_cols[6], x = target, fill = target)) +
+  ggplot(
+    df,
+    aes_string(y = var, x = target, fill = target)
+  ) +
   geom_boxplot(
     alpha = 0.5,
     outlier.colour = "red",
@@ -713,30 +882,34 @@ p <-
   )
 
 p1 <-
-  ggplot(df,
-         aes_string(x = numeric_cols[6], color = target, fill = target)) +
-  geom_histogram(alpha = 0.5)
+  ggplot(
+    df,
+    aes_string(x = var, color = target, fill = target)
+  ) +
+  geom_histogram(alpha = 0.5) +
+  scale_x_continuous(breaks = seq(0, 60, 5))
 
-(p + guides(colour = "none" , fill = "none")) + p1 + plot_layout(ncol = 2) &
-  theme_classic() + theme(legend.position = "bottom", legend.justification = "right")
+(p + guides(colour = "none", fill = "none")) + p1 + plot_layout(ncol = 2) + plot_annotation(title = title) & theme_classic() + theme(legend.position = "bottom", legend.justification = "right")
 ```
 
-> Lorem
+> La variable se encuentra sesgada a la izquierda. En este contexto, no se superan las 5 llamadas previas a esta campaña.
 
-En el caso de `pdays` se definieron los siguientes rangos:
+En el caso de `previous` se definieron los siguientes rangos:
 
--   Negativo: `pdays` < 0
--   Positivo: `pdays` ≥ 0
+- Cliente Nuevo: `previous` ≤ 0
+- Cliente Antiguo:  `previous`> 0
 
-> Únicamente se definió este par de rangos ya que `Q1`, `Q2`, `Q3` de la variable en cuestión corresponden al valor de `0` (ver análisis descriptivo).
+> No se hizo uso de los cuartiles ya que, dado el sesgo, `Q1`, `Q2`, `Q3` de la variable en cuestión corresponden al valor de `0` (ver análisis descriptivo).
 
-Se creó la variable `duration_category`
+Se creó la variable `previous_category`
 
 ```{r}
+breaks <- c(-Inf, 0, Inf)
+labels <- c("Cliente Nuevo", "Cliente Antiguo")
 df$previous_category <- cut(
   df$previous,
-  breaks = c(-Inf, 0, Inf),
-  labels = c("Negativo", "Positivo"),
+  breaks = breaks,
+  labels = labels,
   right = TRUE
 )
 ```
@@ -749,11 +922,13 @@ names(association_table) <- c(target, "previous_category", "Frequency")
 association_table
 ```
 
-```{r cache=TRUE}
+```{r}
 p <-
-  ggplot(association_table,
-         aes_string(x = "previous_category", y = "Frequency", fill = target)) +
-  geom_col(position="dodge") +
+  ggplot(
+    association_table,
+    aes_string(x = "previous_category", y = "Frequency", fill = target)
+  ) +
+  geom_col(alpha = 0.5, position = "dodge") +
   geom_text(
     aes_string(label = "Frequency"),
     size = 3,
@@ -766,7 +941,37 @@ p <-
 p + theme_classic() + theme(legend.position = "bottom", legend.justification = "right")
 ```
 
-> Lorem
+> El público objetivo de la campaña de marketing consideró mayormente a clientes nuevos o no contactados previamente.
+
+Con el propósito de mejorar el análisis de la variable se propone analizarla haciendo uso de otro gráfico.
+
+```{r}
+p <-
+  ggplot(
+    df[df$previous <= 3, ],
+    aes_string(y = var, x = target, fill = target)
+  ) +
+  geom_boxplot(
+    alpha = 0.5,
+    outlier.colour = "red",
+    outlier.shape = 8,
+    outlier.size = 2
+  )
+
+p1 <-
+  ggplot(
+    df[df$previous <= 3, ],
+    aes_string(x = var, color = target, fill = target)
+  ) +
+  geom_histogram(alpha = 0.5)
+
+(p + guides(colour = "none", fill = "none")) + p1 + plot_layout(ncol = 2) &
+  theme_classic() + theme(legend.position = "bottom", legend.justification = "right")
+```
+
+> Se confirmó que los individuos son mayormente clientes nuevos o no contactados previamente.
+
+------------------------------------------------------------------------
 
 ## 4. Tabla de frecuencias \~ `marital`
 
@@ -782,24 +987,28 @@ table_per <- table_freq / sum(table_freq)
 ```
 
 ```{r}
-table_freq <- data.frame(table_freq) %>% rename("Frequency"="Freq")
+table_freq <- data.frame(table_freq) %>% rename("Frequency" = "Freq")
 table_freq
 ```
 
 ```{r}
-table_per <- data.frame(table_per)%>% rename("Percentage"="Freq")
+table_per <- data.frame(table_per) %>% rename("Percentage" = "Freq")
 table_per
 ```
+
+------------------------------------------------------------------------
 
 ## 5. Gráfico de frecuencias \~ `marital`
 
 Realice un gráfico para representar la tabla construida en el punto 4.
 
-```{r cache=TRUE}
+```{r}
 p <-
-  ggplot(table_freq,
-         aes_string(fill = target, y = "Frequency", x = "marital")) +
-  geom_col(position="dodge") +
+  ggplot(
+    table_freq,
+    aes_string(fill = target, y = "Frequency", x = "marital")
+  ) +
+  geom_col(alpha = 0.5, position = "dodge") +
   geom_text(
     aes_string(label = "Frequency"),
     size = 3,
@@ -808,14 +1017,25 @@ p <-
     position = position_dodge(width = .9)
   )
 
-p + theme_classic() + theme(legend.position = "bottom", legend.justification = "right")
+p + theme_classic() + theme(
+  legend.position = "bottom",
+  legend.justification = "right",
+  plot.title = element_text(hjust = 0.5)
+) + labs(title = "Distribución de estados civiles")
 ```
 
-```{r cache=TRUE}
+> Existe una ligera diferencia en la proporción de individuos `married` que no aceptaron el depósito. Ahora bien, dicha diferencia no supera el 20%. La categoría `married` tiene una mayor representación en los datos que las demás categorías.
+
+A continuación se muestra la tabla de porcentaje.
+
+```{r}
 p <-
-  ggplot(table_per,
-         aes_string(fill = target, y = "Percentage", x = "marital")) +
-  geom_col(position="dodge") + ylim(0, 1) +
+  ggplot(
+    table_per,
+    aes_string(fill = target, y = "Percentage", x = "marital")
+  ) +
+  geom_col(alpha = 0.5, position = "dodge") +
+  ylim(0, 1) +
   geom_text(
     aes_string(label = "Percentage"),
     size = 3,
@@ -824,24 +1044,46 @@ p <-
     position = position_dodge(width = .9)
   )
 
-p + theme_classic() + theme(legend.position = "bottom", legend.justification = "right")
+p + theme_classic() + theme(
+  legend.position = "bottom",
+  legend.justification = "right",
+  plot.title = element_text(hjust = 0.5)
+) + labs(title = "Distribución normalizada de estados civiles")
 ```
+
+> Corresponde al gráfico previamente construido, aunque las barras se encuentran normalizadas.
+
+------------------------------------------------------------------------
 
 ## 6. Asociación entre `age` y `duration`
 
 Elija dos variables `numéricas`, establezca rangos que representen distintos niveles de cada una y defina nuevas variables categóricas. Aplique un test adecuado para entender si existe asociación entre ambas. Utilice un nivel de significación del 5%.
 
-```{r}
-pair <- c("age", "duration")
-```
+Se eligieron las variables `age` y `duration`. Se construyó una tabla de contingencia con las categorías que se definieron previamente.
+
 
 ```{r}
-
+contingency_table <- table(df$age_category, df$duration_category)
+contingency_table
 ```
+
+Se realizar el test de `chi-cuadrado`.
 
 ```{r}
-
+res_test <- chisq.test(contingency_table)
+res_test
 ```
+
+Se chequeó el `p-valor`.
+
+```{r}
+h0 <- res_test$p.value < alpha
+print(h0)
+```
+
+Como `p_value < alpha` hay evidencia significativa para rechazar la hipótesis nula de independencia entre ambas variables. Es decir, existe una asociación significativa entre la `age` y la `duration`.
+
+------------------------------------------------------------------------
 
 ## 7. Asociación entre `education` y `housing`
 
@@ -851,63 +1093,141 @@ Seleccione la variable `education` y elija otra variable categórica. Aplique un
 pair <- c("education", "housing")
 ```
 
-```{r}
-
-```
+Se construyó una tabla de contingencia con las variables.
 
 ```{r}
-
+contingency_table <- table(subset(df, select = pair))
+contingency_table
 ```
+
+Se realizar el test de `chi-cuadrado`.
+
+```{r}
+res_test <- chisq.test(contingency_table)
+res_test
+```
+
+Se chequeó el `p-valor`.
+
+```{r}
+h0 <- res_test$p.value < alpha
+print(h0)
+```
+
+Como `p_value < alpha` hay evidencia significativa para rechazar la hipótesis nula de independencia entre ambas variables. Es decir, existe una asociación significativa entre la `education` y la `housing`.
+
+------------------------------------------------------------------------
 
 ## 8. Diferencia de medias `age` según `deposit`
 
-Seleccione otra variable continua y estime la diferencia de medias según el valor de la variable `deposit` con un nivel de confianza del 95%. Interprete el resultado obtenido.
+Seleccione otra variable continua y estime la diferencia de medias según el valor de la variable `deposit` con un nivel de confianza del `95%`. Interprete el resultado obtenido.
+
+> Se supuso que las muestras son independientes.
+
+A fin de corroborar que la variable `age` sigue una distribución normal se graficó `qqPlot`.
+
+
+Se construyó el gráfico `qqPlot` para la variable en cuestión.
 
 ```{r}
-params <- as.list(MASS::fitdistr(df$age, "t")$estimate)
+var <- "age"
+p <- ggplot(df, aes_string(sample = var)) +
+  stat_qq(aes_string(color = target)) +
+  stat_qq_line(alpha = 0.5) +
+  xlab("theoretical") +
+  ylab("sample") +
+  labs(title = paste("qqPlot", var))
 
-ggplot(df, aes(sample = age)) +
-  stat_qq(distribution = qt, dparams = params["df"]) +
-  stat_qq_line(distribution = qt, dparams = params["df"])
+p + theme_classic() + theme(legend.position = "bottom", legend.justification = "right")
 ```
+
+Se llevó a cabo el Test de normalidad de `Shapiro-Wilk`.
 
 ```{r}
-result <- chisq.test(table(df$age))
-
-# Imprimir el valor p
-print(paste("Valor p:", result$p.value))
-print(paste("Recahzar H0:", result$p.value < alpha))
+res_test <- shapiro.test(df$age)
+res_test
 ```
 
+Se chequeó el `p-valor`.
+
+```{r}
+h0 <- res_test$p.value < alpha
+print(h0)
+```
+
+Como `p_value < alpha` hay evidencia significativa para rechazar la hipótesis nula de normalidad de la variable `age`. Es decir, la variable no sigue una distribución normal.
+
+Se aplicó el test de `Wilcoxon test` el cual es adecuado para comparar medias entre dos grupos independientes cuando las distribuciones no son normales.
 
 
 ```{r}
-group_yes <- df$age[df$deposit == "yes"]
-group_no <- df$age[df$deposit == "no"]
+res_test <- wilcox.test(age ~ deposit, data = df, alternative = "two.sided")
+res_test
 ```
+
+Se chequeó el `p-valor`.
 
 ```{r}
-t_test <- t.test(group_yes, group_no)
+h0 <- res_test$p.value < alpha
+print(h0)
 ```
 
-```{r}
-t_test
-```
+Como `p_value > alpha` no hay evidencia significativa para rechazar la hipótesis nula de que no hay diferencia en las medias. Es decir, hay diferencia en las medias.
 
-```{r}
-print(paste("Media 'deposit: yes':", mean(group_yes)))
-print(paste("Media 'deposit: no':", mean(group_no)))
-print(paste("Estadístico t:", t_test$statistic))
-```
+------------------------------------------------------------------------
 
-## 9. Diferencia de medias 
+## 9. Diferencia de medias
 
 Según el resultado obtenido en el `punto 8.`- realice un test de hipótesis apropiado para determinar la diferencia de medias de la variable en estudio. Trabaje con una significación del 5%. Presente el planteo de hipótesis adecuado, la resolución y la decisión a tomar.
 
+En la consigna anterior se realizó Wilcoxon Test `two.sided`, ahora se realizará `greater` y `less` para dar cuenta de qué tipo de diferencia hay entre las medias.
+
 ```{r}
-print(paste("Valor p:", t_test$p.value))
-print(paste("Rechazar H0:", t_test$p.value < alpha))
+res_test <- wilcox.test(age ~ deposit, data = df, alternative = "less")
+res_test
 ```
+
+El test para `greater` 
+
+```{r}
+res_test <- wilcox.test(age ~ deposit, data = df, alternative = "greater")
+res_test
+```
+
+Resulta contradictorio y no tiene sentido estadístico que no se rechace la hipótesis nula en los tres test de hipótesis. 
+
+> Haciendo uso del TCL se supuso la normalidad de los datos (`n >> 30`) y se procedió a llevar a cabo el test de diferencia de medias `t-student`.
+
+```{r}
+res_test <- t.test(age ~ deposit, data = df, conf.level = 1 - alpha, alternative = "two.sided")
+res_test
+```
+
+Se chequeó el `p-valor`.
+
+```{r}
+h0 <- res_test$p.value < alpha
+print(h0)
+```
+
+Como `p_value < alpha` hay evidencia significativa para rechazar la hipótesis nula de que no existe diferencia en las medias. Es decir, la variable no sigue una distribución normal.
+
+Se realizó el test en las restantes hipótesis "less", "greater"
+
+
+```{r}
+res_test <- t.test(age ~ deposit, data = df, conf.level = 1 - alpha, alternative = "less")
+res_test
+```
+
+```{r}
+res_test <- t.test(age ~ deposit, data = df, conf.level = 1 - alpha, alternative = "greater")
+res_test
+```
+
+> Se concluye que hay diferencia en las medias y que la media del grupo `yes` es mayor.
+
+------------------------------------------------------------------------
 
 ## 10. Diferencia de medias `balance` según `deposit`
 
@@ -915,62 +1235,150 @@ Seleccione una muestra de `30` elementos estratificada según la variable `depos
 
 ```{r}
 set.seed(108)
-df_sample <- stratified(df, c("deposit"), 15)
+n_deposit <- 15
+var <- "balance"
+df_sample <- stratified(df, c("deposit"), n_deposit)
 ```
+
+Se construyó el gráfico `qqPlot` para la variable en cuestión.
 
 ```{r}
-qqnorm(df_sample$balance)
-qqline(df_sample$balance)
+p <- ggplot(df_sample, aes_string(sample = var)) +
+  stat_qq(aes_string(color = target)) +
+  stat_qq_line(alpha = 0.5) +
+  xlab("theoretical") +
+  ylab("sample") +
+  labs(title = paste("qqPlot", var))
+
+p + theme_classic() + theme(legend.position = "bottom", legend.justification = "right")
 ```
+
+Se llevó a cabo el test `Shapiro-Wilk` de normalidad.
 
 ```{r}
-result <- shapiro.test(df_sample$balance)
-
-# Imprimir el valor p
-print(paste("Valor p:", result$p.value))
+res_test <- shapiro.test(df_sample$balance)
+res_test
 ```
 
-## 11. 
+Se chequeó el `p-valor`.
+
+```{r}
+h0 <- res_test$p.value < alpha
+print(h0)
+```
+
+Como `p_value < alpha` hay evidencia significativa para rechazar la hipótesis nula de normalidad de la variable `balance`. Es decir, la variable no sigue una distribución normal. Dado que `n` no es suficientemente grande para aplicar TCL se procede con un análisis no paramétrico.
+
+Se realizó el test `Wilcox test` para diferencia de medias.
+
+```{r}
+res_test <- wilcox.test(balance ~ deposit, data = df, conf.level = 1 - alpha, alternative = "greater", conf.int = TRUE)
+res_test
+```
+
+Se chequeó el `p-valor`.
+
+```{r}
+h0 <- res_test$p.value < alpha
+print(h0)
+```
+
+Como `p_value > alpha` no hay evidencia significativa para rechazar la hipótesis nula de que no hay diferencia en las medias. Es decir, hay la media del `deposit=no` es mayor a la media del `deposit=yes`.
+
+------------------------------------------------------------------------
+
+## 11. Diferencia de medias `duration` según `education`
 
 Decida si existen diferencias significativas en la `duración` respecto los niveles de `educación` (`secondary`, `tertiary`, `primary`, `unknown`). Justifique. Utilice un test adecuado. Realice las pruebas necesarias para comprobar los supuestos. Trabaje con una significación del 5%.
 
-```{r}
-pair <- c("education", "duration")
-```
+> Por el `TCL` se supone que la muestra es normal.
+
+Se realizó el modelo `ANOVA`.
 
 ```{r}
-# Realizar un ANOVA
-modelo <- aov(duration ~ education, data = df)
-
-# Obtener los resultados del ANOVA
-resultado_anova <- summary(modelo)
-
-# Imprimir los resultados del ANOVA
-print(resultado_anova)
+model <- aov(duration ~ education, data = df, conf.level = 1 - alpha)
+rest_test <- summary(model)
+res_test
 ```
+
+Se chequeó el `p-valor`.
 
 ```{r}
-# Realizar pruebas de comparación de medias (t-tests)
-#resultado_t_test <- t.test(duration ~ education, data = df)
-
-# Imprimir los resultados de las pruebas t
-#print(resultado_t_test)
+h0 <- res_test$p.value < alpha
+print(h0)
 ```
 
-## 12.
+Como `p_value < alpha` hay evidencia significativa para rechazar la hipótesis nula. Es decir, se puede concluir que existen diferencias significativas en la `duration` de las llamadas telefónicas entre los diferentes niveles de `education`.
+
+```{r}
+res_test <- leveneTest(duration ~ education, data = df, conf.level = 1 - alpha)
+res_test
+```
+
+Se chequeó el `p-valor`.
+
+```{r}
+h0 <- res_test["Pr(>F)"] < alpha
+print(h0)
+```
+
+Como `p_value > alpha` no hay evidencia significativa para rechazar la hipótesis nula de que las varianzas son iguales entre los grupos. Es decir, se puede concluir que existen diferencias significativas en la `duration` de las llamadas telefónicas entre los diferentes niveles de `education`.
+
+------------------------------------------------------------------------
+
+## 12. Regresión lineal
 
 Elija dos variables cuantitativas, determine la variable explicativa y la variable explicada. Encuentre la ecuación de la recta de regresión lineal que explique la relación entre las variables elegidas. Escriba conclusiones acerca de la significatividad del modelo aplicado. Puede acompañar el modelo de un gráfico adecuado.
 
-```{r}
-
-```
+Se eligió `balance` y `duration`. Partiendo del supuesto que los encargados de la campaña de marketing serán más insistentes con los invidividuos que tienen más dinero en la caja de ahorro por lo que la duración de la llamada será mayor.
 
 ```{r}
-
+x <- "balance"
+y <- "duration"
 ```
+
+Se ajustó un modelo de regresión lineal.
 
 ```{r}
-
+model <- lm(duration ~ balance, data = df)
+model
 ```
+
+Se guardaron los resultados del modelo.
+
+```{r}
+res_model <- summary(model)
+res_model
+```
+
+De los anteriores resultados se concluyó:
+
+- `Pendiente:` Por cada unidad de cambio en `balance`, se espera un cambio de 8.87e-06 en `duration`. 
+
+- `P_value`:el valor de p asociado a este coeficiente es `p-value=0.84`, lo cual indica que no hay evidencia significativa para afirmar que la variable `balance` tenga un efecto significativo en `duration`. Es decir, no hay una relación lineal clara entre estas dos variables. O bien que la regresión lineal no explica de manera significativa la variabilidad en la variable `duration`.
+
+- `R² ajustado:` El coeficiente de determinación `R²= -0.000481`, lo cual sugiere que el modelo no ajusta bien los datos y no explica una proporción significativa de la variabilidad en la variable `duration`.
+
+Se graficaron los resultados del modelo ajustado.
+
+```{r}
+p <- ggplot(df, aes_string(x = x, y = y)) +
+  geom_point(alpha = 0.5) +
+  geom_smooth(alpha = 0.5, method = "lm", se = FALSE) +
+  xlab("Duration") +
+  ylab("Balance") +
+  labs(title = "Regresión lineal balance ~ duration")
+
+p + theme_classic() + theme(legend.position = "bottom", legend.justification = "right")
+```
+
+> En conclusión, no hay una relación significativa entre la variable `balance` y `duration`. El modelo de regresión lineal no es significativo y no ajusta bien los datos. 
+
+------------------------------------------------------------------------
 
 13. Presente un informe final con un mínimo de 500 y un máximo de 800 palabras del análisis de la base de datos, describiendo la base de datos, indicando la presencia de valores atípicos y las conclusiones a las que se abordó luego del análisis.
+
+```{r include=FALSE, collapse=TRUE, echo=FALSE}
+library(styler)
+styler::style_file("Uribe_Alejandro_TP1_AID.Rmd")
+```
